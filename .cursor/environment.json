@@ -1,0 +1,6 @@
+{
+  "snapshot": "snapshot-20250514-034144f0-481d-479d-8ce3-fae1ce5ffca2",
+  "install": "curl -fsSL https://bun.sh/install | bash && source ~/.bashrc && bun install",
+  "start": "vercel dev",
+  "terminals": []
+}

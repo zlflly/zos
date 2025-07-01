@@ -1,0 +1,42 @@
+"use strict";
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.isBrowser = exports.createDocument = exports.setInnerHtml = void 0;
+const linkedom_1 = require("linkedom");
+/**
+ * Sets an innerHTML on a given Element.
+ * @param element An Element.
+ * @param html An HTML string to set.
+ */
+const setInnerHtml = (element, html) => {
+    element.innerHTML = html;
+};
+exports.setInnerHtml = setInnerHtml;
+/**
+ * Creates an HTML document.
+ * @returns Document
+ */
+const createDocument = () => {
+    const { document } = (0, linkedom_1.parseHTML)('<!doctype html><html></html>');
+    return document;
+};
+exports.createDocument = createDocument;
+/**
+ * Whether the running environment is a Web browser.
+ */
+exports.isBrowser = false;
+//# sourceMappingURL=testutils.js.map
