@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { Track } from "@/stores/useIpodStore";
 import { useAppStore } from "@/stores/useAppStore";
 import { LyricsDisplay } from "./LyricsDisplay";
-import { useLyrics } from "@/hooks/useLyrics";
+
 import { LyricsAlignment, ChineseVariant, KoreanDisplay } from "@/types/lyrics";
 
 // Battery component

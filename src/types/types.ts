@@ -12,12 +12,6 @@ export interface PlaybackState {
   isPlaying: boolean;
 }
 
-export interface Soundboard {
-  id: string;
-  name: string;
-  slots: SoundSlot[];
-}
-
 export interface WindowPosition {
   x: number;
   y: number;

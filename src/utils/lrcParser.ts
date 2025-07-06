@@ -38,7 +38,6 @@ const SKIP_PREFIXES = [
   "Original Publisher",
   "Sub-publisher",
   "Electric Piano",
-  "Synth by",
   "Recorded by",
   "Mixed by",
   "Mastered by",

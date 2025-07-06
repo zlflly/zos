@@ -51,7 +51,13 @@ export function useSound(soundPath: string, volume: number = 0.3) {
   useEffect(() => {
     // Create gain node for volume control
     gainNodeRef.current = getAudioContext().createGain();
-    gainNodeRef.current.gain.value = volume * uiVolume * masterVolume; // Apply masterVolume
+    
+    // Ensure all volume values are valid numbers
+    const safeVolume = isFinite(volume) ? volume : 0.3;
+    const safeUiVolume = isFinite(uiVolume) ? uiVolume : 1;
+    const safeMasterVolume = isFinite(masterVolume) ? masterVolume : 1;
+    
+    gainNodeRef.current.gain.value = safeVolume * safeUiVolume * safeMasterVolume;
 
     // Connect to destination
     gainNodeRef.current.connect(getAudioContext().destination);
@@ -87,7 +93,10 @@ export function useSound(soundPath: string, volume: number = 0.3) {
           }
         }
         gainNodeRef.current = getAudioContext().createGain();
-        gainNodeRef.current.gain.value = volume * uiVolume * masterVolume; // Apply masterVolume
+        const safeVolume = isFinite(volume) ? volume : 0.3;
+        const safeUiVolume = isFinite(uiVolume) ? uiVolume : 1;
+        const safeMasterVolume = isFinite(masterVolume) ? masterVolume : 1;
+        gainNodeRef.current.gain.value = safeVolume * safeUiVolume * safeMasterVolume;
         gainNodeRef.current.connect(getAudioContext().destination);
       }
 
@@ -98,7 +107,10 @@ export function useSound(soundPath: string, volume: number = 0.3) {
       source.connect(gainNodeRef.current);
 
       // Set volume (apply global scaling)
-      gainNodeRef.current.gain.value = volume * uiVolume * masterVolume; // Apply masterVolume
+      const safeVolume = isFinite(volume) ? volume : 0.3;
+      const safeUiVolume = isFinite(uiVolume) ? uiVolume : 1;
+      const safeMasterVolume = isFinite(masterVolume) ? masterVolume : 1;
+      gainNodeRef.current.gain.value = safeVolume * safeUiVolume * safeMasterVolume;
 
       // If too many concurrent sources are active, skip to avoid audio congestion
       if (activeSources.size > 32) {
@@ -178,15 +190,6 @@ export const Sounds = {
   WINDOW_MOVE_STOP: "/sounds/WindowMoveStop.mp3",
   WINDOW_RESIZE_RESIZING: "/sounds/WindowResizeResizing.mp3",
   WINDOW_RESIZE_STOP: "/sounds/WindowResizeStop.mp3",
-  // Minesweeper sounds
-  CLICK: "/sounds/Click.mp3",
-  ALERT_BONK: "/sounds/AlertBonk.mp3",
-  ALERT_INDIGO: "/sounds/AlertIndigo.mp3",
-  MSN_NUDGE: "/sounds/MSNNudge.mp3",
-  // Video player sounds
-  VIDEO_TAPE: "/sounds/VideoTapeIn.mp3",
-  // Photo booth sounds
-  PHOTO_SHUTTER: "/sounds/PhotoShutter.mp3",
   // Boot sound
   BOOT: "/sounds/Boot.mp3",
   VOLUME_CHANGE: "/sounds/Volume.mp3",

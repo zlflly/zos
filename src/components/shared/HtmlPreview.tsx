@@ -500,32 +500,34 @@ export default function HtmlPreview({
     };
   }, [showCode, finalProcessedHtmlRef.current]); // Depend on showCode and the final content ref
 
-  // Play music and cancel when unmounting for streaming content
+  // Effect to manage elevator music and ding sound based on streaming state
   useEffect(() => {
-    if (isStreaming && playElevatorMusic && terminalSoundsEnabled) {
-      playElevatorMusic(mode);
-      return () => {
-        if (stopElevatorMusic) {
-          stopElevatorMusic();
-        }
-      };
-    }
-  }, [isStreaming, playElevatorMusic, stopElevatorMusic, mode, terminalSoundsEnabled]);
-
-  // Play a completion sound when streaming ends
-  useEffect(() => {
-    if (
-      prevStreamingRef.current &&
-      !isStreaming &&
-      playDingSound &&
-      stopElevatorMusic &&
-      terminalSoundsEnabled
-    ) {
-      playDingSound();
-      stopElevatorMusic();
+    if (isStreaming) {
+      if (playElevatorMusic && mode === "past") {
+        playElevatorMusic("past");
+      } else if (playElevatorMusic && mode === "future") {
+        playElevatorMusic("future");
+      } else if (playElevatorMusic) {
+        playElevatorMusic("now");
+      }
+    } else {
+      if (stopElevatorMusic) {
+        stopElevatorMusic();
+      }
+      // Play ding sound only once at the end of streaming
+      if (playDingSound && prevStreamingRef.current) {
+        playDingSound();
+      }
     }
     prevStreamingRef.current = isStreaming;
-  }, [isStreaming, playDingSound, stopElevatorMusic, terminalSoundsEnabled]);
+
+    // Clean up when component unmounts or streaming ends
+    return () => {
+      if (stopElevatorMusic) {
+        stopElevatorMusic();
+      }
+    };
+  }, [isStreaming, playElevatorMusic, stopElevatorMusic, playDingSound, mode]);
 
   const handleCopy = async (e: React.MouseEvent) => {
     e.stopPropagation();

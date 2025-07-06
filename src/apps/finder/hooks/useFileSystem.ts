@@ -4,11 +4,6 @@ import { ensureIndexedDBInitialized } from "@/utils/indexedDB";
 import { getNonFinderApps, AppId } from "@/config/appRegistry";
 import { useLaunchApp } from "@/hooks/useLaunchApp";
 import { useIpodStore } from "@/stores/useIpodStore";
-import { useVideoStore } from "@/stores/useVideoStore";
-import {
-  useInternetExplorerStore,
-  type Favorite,
-} from "@/stores/useInternetExplorerStore";
 import { useFilesStore, FileSystemItem } from "@/stores/useFilesStore";
 import { useTextEditStore } from "@/stores/useTextEditStore";
 import { useAppStore } from "@/stores/useAppStore";
@@ -376,12 +371,6 @@ export function useFileSystem(
     setCurrentIndex: setIpodIndex,
     setIsPlaying: setIpodPlaying,
   } = useIpodStore();
-  const {
-    videos: videoTracks,
-    setCurrentIndex: setVideoIndex,
-    setIsPlaying: setVideoPlaying,
-  } = useVideoStore();
-  const internetExplorerStore = useInternetExplorerStore();
 
   // Define getParentPath inside hook
   const getParentPath = (path: string): string => {
@@ -626,7 +615,7 @@ export function useFileSystem(
         ); // Log entry
         const pathParts = currentPath.split("/").filter(Boolean);
         console.log(`[useFileSystem:loadFiles] Path parts:`, pathParts); // Log parts
-        let currentLevelFavorites = internetExplorerStore.favorites;
+        let currentLevelFavorites: any[] = [];
         let currentVirtualPath = "/Sites";
 
         // Traverse down the favorites structure based on the path
@@ -658,24 +647,7 @@ export function useFileSystem(
         ); // Log before map
 
         // Map the current level favorites to FileItems
-        displayFiles = currentLevelFavorites.map((fav: Favorite) => {
-          const isDirectory = fav.isDirectory ?? false;
-          const name = fav.title || (isDirectory ? "Folder" : "Link");
-          const path = `${currentVirtualPath}/${encodeURIComponent(name)}`;
-          return {
-            name: name,
-            isDirectory: isDirectory,
-            path: path,
-            icon: isDirectory
-              ? "/icons/directory.png"
-              : fav.favicon || "/icons/site.png",
-            appId: isDirectory ? undefined : "internet-explorer",
-            type: isDirectory ? "directory-virtual" : "site-link",
-            data: isDirectory
-              ? undefined
-              : { url: fav.url, year: fav.year || "current" },
-          };
-        });
+        displayFiles = [];
         console.log(
           `[useFileSystem:loadFiles] Mapped displayFiles for /Sites (count: ${displayFiles.length}):`,
           displayFiles
@@ -792,15 +764,7 @@ export function useFileSystem(
       }
       // c. Favorites (Virtual)
       else if (currentPath === "/Favorites") {
-        displayFiles = internetExplorerStore.favorites.map((favorite) => ({
-          name: `${favorite.title}.webloc`,
-          isDirectory: false,
-          path: `/Favorites/${favorite.title}.webloc`,
-          type: "site-link",
-          data: favorite,
-          icon: "/icons/file-internet.png",
-          modifiedAt: undefined, // Virtual files don't have timestamps
-        }));
+        displayFiles = [];
       }
 
       setFiles(displayFiles);
@@ -815,8 +779,6 @@ export function useFileSystem(
     currentPath,
     fileStore.items,
     ipodTracks,
-    videoTracks,
-    internetExplorerStore.favorites,
   ]);
 
   // Define handleFileOpen
@@ -940,11 +902,6 @@ export function useFileSystem(
           setIpodIndex(trackIndex);
           setIpodPlaying(true);
           launchApp("ipod");
-        } else if (file.appId === "videos" && file.data?.index !== undefined) {
-          // Videos uses data directly, no change needed here for initialData
-          setVideoIndex(file.data.index);
-          setVideoPlaying(true);
-          launchApp("videos");
         } else if (file.type === "site-link" && file.data?.url) {
           // Pass url and year via initialData instead of using IE store directly
           launchApp("internet-explorer", {
@@ -969,11 +926,8 @@ export function useFileSystem(
       navigateToPath,
       setIpodIndex,
       setIpodPlaying,
-      setVideoIndex,
-      setVideoPlaying,
-      internetExplorerStore,
-      ensureDefaultContent,
       fileStore,
+      ensureDefaultContent,
     ]
   );
 

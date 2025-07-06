@@ -1,19 +1,18 @@
 import { useState, useCallback } from "react";
-import { useChatsStore } from "@/stores/useChatsStore";
 import { toast } from "sonner";
 
 export function useAuth() {
-  const {
-    username,
-    authToken,
-    hasPassword,
-    setAuthToken,
-    setUsername,
-    createUser,
-    logout,
-    checkHasPassword: storeCheckHasPassword,
-    setPassword: storeSetPassword,
-  } = useChatsStore();
+  // All chat-related authentication logic is removed.
+  // This hook now provides placeholder values or no-op functions.
+  const username = "";
+  const authToken = "";
+  const hasPassword = false;
+  const setAuthToken = () => {};
+  const setUsername = () => {};
+  const createUser = async () => ({ ok: false, error: "Authentication feature removed" });
+  const logout = async () => {};
+  const storeCheckHasPassword = async () => false;
+  const storeSetPassword = async () => ({ ok: false, error: "Authentication feature removed" });
 
   // Set username dialog states
   const [isUsernameDialogOpen, setIsUsernameDialogOpen] = useState(false);
@@ -55,32 +54,9 @@ export function useAuth() {
       return;
     }
 
-    // If we have a different user already logged in, clear their data first
-    if (username && username !== trimmedUsername) {
-      console.log(
-        "[useAuth] Clearing old user data for different user:",
-        username,
-        "->",
-        trimmedUsername
-      );
-      await logout();
-    }
-
-    const result = await createUser(trimmedUsername, newPassword || undefined);
-
-    if (result.ok) {
-      setIsUsernameDialogOpen(false);
-      setNewUsername("");
-      setNewPassword("");
-      toast.success("Logged In", {
-        description: `Welcome, ${trimmedUsername}!`,
-      });
-    } else {
-      setUsernameError(result.error || "Failed to set username");
-    }
-
+    toast.error("Authentication feature removed.");
     setIsSettingUsername(false);
-  }, [newUsername, newPassword, createUser]);
+  }, [newUsername, newPassword]);
 
   // Token verification management
   const promptVerifyToken = useCallback(() => {
@@ -93,128 +69,9 @@ export function useAuth() {
 
   const handleVerifyTokenSubmit = useCallback(
     async (input: string, isPassword: boolean = false) => {
-      if (!input.trim()) {
-        setVerifyError(isPassword ? "Password required" : "Token required");
-        return;
-      }
-
-      setIsVerifyingToken(true);
-      setVerifyError(null);
-
-      try {
-        if (isPassword) {
-          const targetUsername = verifyUsernameInput.trim() || username || "";
-
-          // If we have a different user already logged in, clear their data first
-          if (username && username !== targetUsername) {
-            console.log(
-              "[useAuth] Clearing old user data for different user login:",
-              username,
-              "->",
-              targetUsername
-            );
-            await logout();
-          }
-
-          // Authenticate with password
-          const response = await fetch(
-            "/api/chat-rooms?action=authenticateWithPassword",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                username: targetUsername,
-                password: input.trim(),
-              }),
-            }
-          );
-
-          if (!response.ok) {
-            const data = await response.json();
-            setVerifyError(data.error || "Invalid username or password");
-            return;
-          }
-
-          const result = await response.json();
-          if (result.token) {
-            setAuthToken(result.token);
-            // Set username from the response to ensure it's properly stored
-            if (result.username) {
-              setUsername(result.username);
-            }
-            toast.success("Success", {
-              description: "Logged in successfully with password",
-            });
-            setVerifyDialogOpen(false);
-            setVerifyPasswordInput("");
-            // Also close the sign-up/username dialog if it happens to be open
-            setIsUsernameDialogOpen(false);
-          }
-        } else {
-          // For token login, clear any existing user data to prevent token mixing
-          if (username || authToken) {
-            console.log(
-              "[useAuth] Clearing existing user data before token login to prevent mixing"
-            );
-            await logout();
-          }
-
-          // Test the token using the dedicated verification endpoint
-          const testResponse = await fetch(
-            "/api/chat-rooms?action=verifyToken",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${input.trim()}`,
-                "X-Username": username || "test",
-              },
-              body: JSON.stringify({}),
-            }
-          );
-
-          if (!testResponse.ok) {
-            if (testResponse.status === 401) {
-              setVerifyError("Invalid token - authentication failed");
-            } else {
-              setVerifyError(
-                `Token validation failed (${testResponse.status})`
-              );
-            }
-            return;
-          }
-
-          // Parse the response to get validation details
-          const result = await testResponse.json();
-          console.log("[useAuth] Token validation successful:", result);
-
-          // Token is valid, set it in the store
-          setAuthToken(input.trim());
-
-          // Set username from the response to ensure it's properly stored
-          if (result.username) {
-            setUsername(result.username);
-          }
-
-          toast.success("Success", {
-            description: "Token verified and set successfully",
-          });
-          setVerifyDialogOpen(false);
-          setVerifyTokenInput("");
-          // Also close the sign-up/username dialog if it happens to be open
-          setIsUsernameDialogOpen(false);
-        }
-      } catch (err) {
-        console.error("[useAuth] Error verifying:", err);
-        setVerifyError("Network error while verifying");
-      } finally {
-        setIsVerifyingToken(false);
-      }
-    },
-    [setAuthToken, setUsername, username, verifyUsernameInput]
-  );
+      toast.error("Authentication feature removed.");
+      setIsVerifyingToken(false);
+    }, [username, authToken]);
 
   // Check if user has a password set (now uses store)
   const checkHasPassword = useCallback(async () => {

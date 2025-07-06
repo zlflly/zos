@@ -21,8 +21,8 @@ import { useAppStore } from "@/stores/useAppStore";
 import { ShareItemDialog } from "@/components/dialogs/ShareItemDialog";
 import { toast } from "sonner";
 import { createPortal } from "react-dom";
-import { LyricsDisplay } from "./LyricsDisplay";
-import { useLyrics } from "@/hooks/useLyrics";
+
+
 import { useLibraryUpdateChecker } from "../hooks/useLibraryUpdateChecker";
 
 // Add this component definition before the IpodAppComponent
@@ -1625,17 +1625,8 @@ export function IpodAppComponent({
     ipodVolume: state.ipodVolume,
   }));
 
-  // Always call useLyrics at the top level, outside of any conditional logic
-  const fullScreenLyricsControls = useLyrics({
-    title: tracks[currentIndex]?.title ?? "",
-    artist: tracks[currentIndex]?.artist ?? "",
-    album: tracks[currentIndex]?.album ?? "",
-    currentTime: elapsedTime + (tracks[currentIndex]?.lyricOffset ?? 0) / 1000,
-    translateTo:
-      lyricsTranslationRequest?.songId === tracks[currentIndex]?.id
-        ? lyricsTranslationRequest?.language
-        : null,
-  });
+  // Lyrics functionality removed during simplification
+  const fullScreenLyricsControls = null;
 
   // Add a ref to track the previous fullscreen state
   const prevFullScreenRef = useRef(isFullScreen);
@@ -1901,59 +1892,7 @@ export function IpodAppComponent({
                         />
                       </div>
 
-                      {/* Dark overlay when lyrics are shown */}
-                      {showLyrics && tracks[currentIndex] && (
-                        <div className="absolute inset-0 bg-black/50 z-10 pointer-events-none" />
-                      )}
-
-                      {/* Lyrics Overlay */}
-                      {showLyrics && (
-                        <div className="absolute bottom-0 inset-0 pointer-events-none z-20">
-                          {/* Use the hook result from the top level */}
-                          <LyricsDisplay
-                            lines={fullScreenLyricsControls.lines}
-                            currentLine={fullScreenLyricsControls.currentLine}
-                            isLoading={fullScreenLyricsControls.isLoading}
-                            error={fullScreenLyricsControls.error}
-                            visible={true}
-                            videoVisible={true}
-                            alignment={lyricsAlignment}
-                            chineseVariant={chineseVariant}
-                            koreanDisplay={koreanDisplay}
-                            onAdjustOffset={(delta) => {
-                              // Update store with the adjusted offset
-                              useIpodStore
-                                .getState()
-                                .adjustLyricOffset(currentIndex, delta);
-
-                              // Display status message
-                              const newOffset =
-                                (tracks[currentIndex]?.lyricOffset ?? 0) +
-                                delta;
-                              const sign =
-                                newOffset > 0 ? "+" : newOffset < 0 ? "" : "";
-                              showStatus(
-                                `Offset ${sign}${(newOffset / 1000).toFixed(
-                                  2
-                                )}s`
-                              );
-
-                              // Force immediate update of lyrics display with new offset
-                              const updatedTime =
-                                elapsedTime + newOffset / 1000;
-                              fullScreenLyricsControls.updateCurrentTimeManually(
-                                updatedTime
-                              );
-                            }}
-                            isTranslating={
-                              fullScreenLyricsControls.isTranslating
-                            }
-                            textSizeClass="text-[min(8vw,8vh)]"
-                            interactive={isIOSSafari ? false : isPlaying}
-                            bottomPaddingClass="pb-42"
-                          />
-                        </div>
-                      )}
+                      {/* Lyrics functionality removed during simplification */}
                     </>
                   )}
                 </div>

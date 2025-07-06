@@ -6,10 +6,9 @@ import { AppManagerState, AppState } from "@/apps/base/types";
 import { checkShaderPerformance } from "@/utils/performanceCheck";
 import { ShaderType } from "@/components/shared/GalaxyBackground";
 import { DisplayMode } from "@/utils/displayMode";
-import { AIModel } from "@/types/aiModels";
 import { ensureIndexedDBInitialized } from "@/utils/indexedDB";
 // Re-export for backward compatibility
-export type { AIModel } from "@/types/aiModels";
+
 
 // Add new types for instance management
 export interface AppInstance extends AppState {
@@ -39,7 +38,7 @@ const getInitialState = (): AppManagerState => {
   };
 };
 
-interface AppStoreState extends AppManagerState {
+export interface AppStoreState extends AppManagerState {
   // Add instance management
   instances: Record<string, AppInstance>;
   instanceWindowOrder: string[];
@@ -78,24 +77,8 @@ interface AppStoreState extends AppManagerState {
   setShaderEffectEnabled: (enabled: boolean) => void;
   selectedShaderType: ShaderType;
   setSelectedShaderType: (shaderType: ShaderType) => void;
-  aiModel: AIModel;
-  setAiModel: (model: AIModel) => void;
-  terminalSoundsEnabled: boolean;
-  setTerminalSoundsEnabled: (enabled: boolean) => void;
   uiSoundsEnabled: boolean;
   setUiSoundsEnabled: (enabled: boolean) => void;
-  typingSynthEnabled: boolean;
-  setTypingSynthEnabled: (enabled: boolean) => void;
-  speechEnabled: boolean;
-  setSpeechEnabled: (enabled: boolean) => void;
-  speechVolume: number;
-  setSpeechVolume: (v: number) => void;
-  ttsModel: "openai" | "elevenlabs" | null;
-  setTtsModel: (model: "openai" | "elevenlabs" | null) => void;
-  ttsVoice: string | null;
-  setTtsVoice: (voice: string | null) => void;
-  synthPreset: string;
-  setSynthPreset: (preset: string) => void;
   displayMode: DisplayMode;
   setDisplayMode: (mode: DisplayMode) => void;
   updateWindowState: (
@@ -119,12 +102,8 @@ interface AppStoreState extends AppManagerState {
   getWallpaperData: (reference: string) => Promise<string | null>;
   isFirstBoot: boolean;
   setHasBooted: () => void;
-  htmlPreviewSplit: boolean;
-  setHtmlPreviewSplit: (val: boolean) => void;
   uiVolume: number;
   setUiVolume: (vol: number) => void;
-  chatSynthVolume: number;
-  setChatSynthVolume: (vol: number) => void;
   ipodVolume: number;
   setIpodVolume: (vol: number) => void;
   masterVolume: number;
@@ -152,31 +131,18 @@ export const useAppStore = create<AppStoreState>()(
       selectedShaderType: ShaderType.AURORA,
       setSelectedShaderType: (shaderType) =>
         set({ selectedShaderType: shaderType }),
-      aiModel: null, // Default model set to null for client-side
-      setAiModel: (model) => set({ aiModel: model }),
-      terminalSoundsEnabled: true, // Default to true for terminal/IE sounds
-      setTerminalSoundsEnabled: (enabled) =>
-        set({ terminalSoundsEnabled: enabled }),
       uiSoundsEnabled: true,
       setUiSoundsEnabled: (enabled) => set({ uiSoundsEnabled: enabled }),
-      typingSynthEnabled: false,
-      setTypingSynthEnabled: (enabled) => set({ typingSynthEnabled: enabled }),
-      speechEnabled: false,
-      setSpeechEnabled: (enabled) => set({ speechEnabled: enabled }),
-      speechVolume: 2,
-      setSpeechVolume: (v) => set({ speechVolume: v }),
-      ttsModel: null, // Default to null (select option)
-      setTtsModel: (model) => set({ ttsModel: model }),
-      ttsVoice: null, // Default to null (select option)
-      setTtsVoice: (voice) => set({ ttsVoice: voice }),
-      synthPreset: "classic",
-      setSynthPreset: (preset) => set({ synthPreset: preset }),
       displayMode: "color",
       setDisplayMode: (mode) => set({ displayMode: mode }),
       isFirstBoot: true,
       setHasBooted: () => {
         set({ isFirstBoot: false });
       },
+      uiVolume: 1,
+      setUiVolume: (vol) => set({ uiVolume: vol }),
+      ipodVolume: 1,
+      setIpodVolume: (vol) => set({ ipodVolume: vol }),
       masterVolume: 1,
       setMasterVolume: (vol) => set({ masterVolume: vol }),
       updateWindowState: (appId, position, size) =>
@@ -190,8 +156,8 @@ export const useAppStore = create<AppStoreState>()(
             },
           },
         })),
-      currentWallpaper: "/wallpapers/videos/blue_flowers_loop.mp4", // Default wallpaper
-      wallpaperSource: "/wallpapers/videos/blue_flowers_loop.mp4",
+      currentWallpaper: "/public/wallpapers/photos/landscapes/clouds.jpg", // Default wallpaper
+      wallpaperSource: "/public/wallpapers/photos/landscapes/clouds.jpg",
       setCurrentWallpaper: (wallpaperPath) =>
         set({
           currentWallpaper: wallpaperPath,
@@ -572,15 +538,6 @@ export const useAppStore = create<AppStoreState>()(
         });
       },
 
-      htmlPreviewSplit: true,
-      setHtmlPreviewSplit: (val) => set({ htmlPreviewSplit: val }),
-      uiVolume: 1,
-      setUiVolume: (vol) => set({ uiVolume: vol }),
-      chatSynthVolume: 2,
-      setChatSynthVolume: (vol) => set({ chatSynthVolume: vol }),
-      ipodVolume: 1,
-      setIpodVolume: (vol) => set({ ipodVolume: vol }),
-
       // Add instance management
       instances: {},
       instanceWindowOrder: [],
@@ -883,22 +840,11 @@ export const useAppStore = create<AppStoreState>()(
         debugMode: state.debugMode,
         shaderEffectEnabled: state.shaderEffectEnabled,
         selectedShaderType: state.selectedShaderType,
-        aiModel: state.aiModel,
-        terminalSoundsEnabled: state.terminalSoundsEnabled,
         uiSoundsEnabled: state.uiSoundsEnabled,
-        typingSynthEnabled: state.typingSynthEnabled,
-        speechEnabled: state.speechEnabled,
-        synthPreset: state.synthPreset,
-        htmlPreviewSplit: state.htmlPreviewSplit,
-        currentWallpaper: state.currentWallpaper,
         displayMode: state.displayMode,
         isFirstBoot: state.isFirstBoot,
         wallpaperSource: state.wallpaperSource,
         uiVolume: state.uiVolume,
-        chatSynthVolume: state.chatSynthVolume,
-        speechVolume: state.speechVolume,
-        ttsModel: state.ttsModel,
-        ttsVoice: state.ttsVoice,
         ipodVolume: state.ipodVolume,
         masterVolume: state.masterVolume,
         // Only persist open instances to avoid storing closed instances
@@ -919,21 +865,21 @@ export const useAppStore = create<AppStoreState>()(
           CURRENT_APP_STORE_VERSION
         );
 
-        let migratedState = migrated;
+        const migratedState = migrated;
 
-        // Migrate from version 1 to 2: Reset TTS settings to null
-        if (version < 2) {
-          console.log(
-            "[AppStore] Migrating TTS settings to new defaults (null). Previous values:",
-            {
-              ttsModel: migratedState.ttsModel,
-              ttsVoice: migratedState.ttsVoice,
-            }
-          );
-          migratedState = {
+        // Migration logic for version 2: Remove TTS-related fields
+        if (
+          (persistedState as any).version < 2 &&
+          persistedState &&
+          typeof persistedState === "object"
+        ) {
+          const migratedState = { ...(persistedState as any) };
+          delete migratedState.ttsModel;
+          delete migratedState.ttsVoice;
+
+          return {
             ...migratedState,
-            ttsModel: null,
-            ttsVoice: null,
+            version: 2,
           };
         }
 
@@ -1050,8 +996,8 @@ export const useAppStore = create<AppStoreState>()(
 // Wallpaper / background handling --------------------------------------------------
 export const INDEXEDDB_PREFIX = "indexeddb://";
 const CUSTOM_WALLPAPERS_STORE = "custom_wallpapers";
-// Keep cached object URLs so we do not recreate them every time
-const objectURLs: Record<string, string> = {};
+// Simple in-memory cache for Object URLs to avoid re-creations
+const objectURLs: { [key: string]: string } = {};
 
 // Structure stored in IndexedDB for custom wallpapers
 type StoredWallpaper = {
@@ -1063,9 +1009,11 @@ type StoredWallpaper = {
 // Helper to convert a data URL to a Blob (for backwards compatibility)
 const dataURLToBlob = (dataURL: string): Blob | null => {
   try {
-    if (!dataURL.startsWith("data:")) return null;
     const arr = dataURL.split(",");
-    const mime = arr[0].match(/:(.*?);/)?.[1];
+    if (arr.length < 2) return null;
+    const mimeMatch = arr[0].match(/:(.*?);/);
+    if (!mimeMatch) return null;
+    const mime = mimeMatch[1];
     const bstr = atob(arr[1]);
     let n = bstr.length;
     const u8arr = new Uint8Array(n);
@@ -1073,59 +1021,32 @@ const dataURLToBlob = (dataURL: string): Blob | null => {
       u8arr[n] = bstr.charCodeAt(n);
     }
     return new Blob([u8arr], { type: mime });
-  } catch (e) {
-    console.error("Error converting data URL to Blob:", e);
+  } catch (err) {
+    console.error("dataURLToBlob failed:", err);
     return null;
   }
 };
 
 // Save a custom wallpaper (image file) to IndexedDB and return its reference string
 const saveCustomWallpaper = async (file: File): Promise<string> => {
-  if (!file.type.startsWith("image/")) {
-    throw new Error("Only image files are allowed for custom wallpapers");
-  }
-  try {
-    const db = await ensureIndexedDBInitialized();
-    const tx = db.transaction(CUSTOM_WALLPAPERS_STORE, "readwrite");
-    const store = tx.objectStore(CUSTOM_WALLPAPERS_STORE);
-    const wallpaperName = `custom_${Date.now()}_${file.name.replace(
-      /[^a-zA-Z0-9._-]/g,
-      "_"
-    )}`;
-    const wallpaper = {
-      name: wallpaperName,
-      blob: file,
-      content: "", // backwards compatibility
-      type: file.type,
-      dateAdded: new Date().toISOString(),
-    };
-    await new Promise<void>((resolve, reject) => {
-      const req = store.put(wallpaper);
-      req.onsuccess = () => resolve();
-      req.onerror = () => reject(req.error);
-    });
-    db.close();
-    return `${INDEXEDDB_PREFIX}${wallpaperName}`;
-  } catch (err) {
-    console.error("Failed to save custom wallpaper:", err);
-    throw err;
-  }
+  const db = await ensureIndexedDBInitialized();
+  const tx = db.transaction(CUSTOM_WALLPAPERS_STORE, "readwrite");
+  const store = tx.objectStore(CUSTOM_WALLPAPERS_STORE);
+  const id = crypto.randomUUID();
+  await new Promise<void>((resolve, reject) => {
+    const req = store.put({ blob: file }, id);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+  db.close();
+  return `${INDEXEDDB_PREFIX}${id}`;
 };
 
 // Global utility: clearAllAppStates – used by Control Panels "Reset All" button.
 export const clearAllAppStates = (): void => {
-  try {
-    localStorage.clear();
-  } catch (err) {
-    console.error("[clearAllAppStates] Failed to clear localStorage", err);
-  }
+  useAppStore.persist.clearStorage();
+  // Optionally, also clear IndexedDB stores if needed
+  // This is a destructive action, use with caution
 };
-
-// HTML Preview split helpers that rely on the store state
-export const loadHtmlPreviewSplit = () =>
-  useAppStore.getState().htmlPreviewSplit;
-
-export const saveHtmlPreviewSplit = (val: boolean) =>
-  useAppStore.getState().setHtmlPreviewSplit(val);
 
 // -------------------------------------------------------------------------------

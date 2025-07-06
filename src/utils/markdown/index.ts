@@ -248,215 +248,149 @@ export const htmlToMarkdown = (html: string): string => {
               cell
                 .replace(/<t[dh][^>]*>(.*?)<\/t[dh]>/i, "$1")
                 .trim()
-                .replace(/\|/g, "\\|")
             )
             .join(" | ") +
           " |"
         );
       });
 
-      // Insert header separator after first row
-      if (markdownRows.length > 0) {
-        const columnCount = (markdownRows[0].match(/\|/g) || []).length - 1;
-        const separator = "\n|" + " --- |".repeat(columnCount);
+      // Add header separator
+      if (markdownRows.length > 1) {
+        const headerCellCount = (rows[0].match(/<th/gi) || []).length;
+        const separator =
+          "| " +
+          Array(headerCellCount).fill("---").join(" | ") +
+          " |";
         markdownRows.splice(1, 0, separator);
       }
 
-      return "\n" + markdownRows.join("\n") + "\n";
+      return markdownRows.join("\n");
     }
   );
 
-  // Convert code blocks
+  // Convert blockquotes
   markdown = markdown.replace(
-    /<pre[^>]*><code[^>]*(?:class="language-([^"]+)")?[^>]*>(.*?)<\/code><\/pre>/gis,
-    (_, language, code) => {
-      const lang = language || "";
-      return `\n\`\`\`${lang}\n${code
-        .replace(/&lt;/g, "<")
-        .replace(/&gt;/g, ">")
-        .replace(/&amp;/g, "&")}\n\`\`\`\n`;
-    }
-  );
-
-  // Convert inline code
-  markdown = markdown.replace(
-    /<code[^>]*>(.*?)<\/code>/gi,
-    (_, code) =>
-      `\`${code
-        .replace(/&lt;/g, "<")
-        .replace(/&gt;/g, ">")
-        .replace(/&amp;/g, "&")}\``
+    /<blockquote[^>]*>\s*<p[^>]*>(.*?)<\/p>\s*<\/blockquote>/gis,
+    "> $1\n"
   );
 
   // Convert headings
-  markdown = markdown
-    .replace(/<h1[^>]*>(.*?)<\/h1>/gi, "# $1\n")
-    .replace(/<h2[^>]*>(.*?)<\/h2>/gi, "## $1\n")
-    .replace(/<h3[^>]*>(.*?)<\/h3>/gi, "### $1\n");
+  markdown = markdown.replace(/<h1[^>]*>(.*?)<\/h1>/gi, "# $1\n");
+  markdown = markdown.replace(/<h2[^>]*>(.*?)<\/h2>/gi, "## $1\n");
+  markdown = markdown.replace(/<h3[^>]*>(.*?)<\/h3>/gi, "### $1\n");
+  markdown = markdown.replace(/<h4[^>]*>(.*?)<\/h4>/gi, "#### $1\n");
+
+  // Convert paragraphs
+  markdown = markdown.replace(/<p[^>]*>(.*?)<\/p>/gi, "$1\n");
+
+  // Convert bold and italic
+  markdown = markdown.replace(/<strong[^>]*>(.*?)<\/strong>/gi, "**$1**");
+  markdown = markdown.replace(/<b[^>]*>(.*?)<\/b>/gi, "**$1**");
+  markdown = markdown.replace(/<em[^>]*>(.*?)<\/em>/gi, "*$1*");
+  markdown = markdown.replace(/<i[^>]*>(.*?)<\/i>/gi, "*$1*");
+  markdown = markdown.replace(/<u[^>]*>(.*?)<\/u>/gi, "$1"); // Underline has no standard markdown
+
+  // Convert line breaks
+  markdown = markdown.replace(/<br[^>]*>/gi, "\n");
   
-  // Convert text formatting
-  markdown = markdown
-    .replace(/<strong[^>]*>(.*?)<\/strong>/gi, "**$1**")
-    .replace(/<b[^>]*>(.*?)<\/b>/gi, "**$1**")
-    .replace(/<em[^>]*>(.*?)<\/em>/gi, "*$1*")
-    .replace(/<i[^>]*>(.*?)<\/i>/gi, "*$1*")
-    .replace(/<u[^>]*>(.*?)<\/u>/gi, "_$1_");
+  // Convert links
+  markdown = markdown.replace(/<a href="([^"]+)">(.*?)<\/a>/gi, "[$2]($1)");
 
-  // Convert paragraphs and line breaks
-  markdown = markdown
-    .replace(/<p[^>]*>(.*?)<\/p>/gi, "$1\n")
-    .replace(/<br[^>]*>/gi, "\n");
+  // Decode HTML entities
+  const tempElement = document.createElement("textarea");
+  tempElement.innerHTML = markdown;
+  markdown = tempElement.value;
 
-  // Remove any remaining HTML tags
-  markdown = markdown.replace(/<[^>]+>/g, "");
-
-  // Fix HTML entities
-  markdown = markdown
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">");
-
-  // Normalize multiple newlines and trim
-  markdown = markdown
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-
-  return markdown;
+  return markdown.trim();
 };
 
 /**
- * Converts Markdown to HTML
+ * Converts Markdown content to HTML
  */
 export const markdownToHtml = (markdown: string): string => {
   let html = markdown;
 
-  // Process task lists first
-  html = html.replace(/^(\s*)-\s+\[([ xX])\]\s+(.*?)$/gm, (_, indent, checked, text) => {
-    const isChecked = checked.toLowerCase() === 'x';
-    const indentSpaces = indent ? indent.length : 0;
-    const indentClass = indentSpaces > 0 ? ` class="indented" style="margin-left:${indentSpaces * 10}px"` : '';
-    return `<ul data-type="taskList"${indentClass}><li${isChecked ? ' data-checked="true"' : ''}><label><input type="checkbox" ${isChecked ? 'checked' : ''}/></label><div><p>${text}</p></div></li></ul>`;
-  });
-
-  // Process indented lists with proper nesting
+  // Function to process indented lists recursively
   const processIndentedLists = () => {
-    // Track list processing state
-    const listStack: { type: string; indent: number; html: string }[] = [];
-    const lines = html.split('\n');
-    const processedLines: string[] = [];
+    // Regex to match list items with indentation
+    const indentedListRegex = /((?:^ {2,}- .*\n?)+)/gm;
+    html = html.replace(indentedListRegex, (match) => {
+      const lines = match.trimEnd().split('\n');
+      let nestedHtml = '<ul>\n';
+      lines.forEach(line => {
+        // Remove the first level of indentation
+        const trimmedLine = line.replace(/^ {2}/, '');
+        nestedHtml += `<li>${trimmedLine.substring(2)}</li>\n`;
+      });
+      nestedHtml += '</ul>';
+      return nestedHtml;
+    });
 
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      
-      // Check for bullet list item (allow more flexible indentation with spaces or tabs)
-      const bulletMatch = line.match(/^(\s*)([-*+])\s+(.*?)$/);
-      if (bulletMatch) {
-        const [, indent, , content] = bulletMatch; // Ignore bullet character
-        const indentLevel = indent ? Math.ceil(indent.length / 2) : 0;
-        
-        // Check if we need to close any lists or start a new one
-        while (listStack.length > 0 && 
-              (listStack[listStack.length - 1].indent > indentLevel || 
-              (listStack[listStack.length - 1].indent === indentLevel && listStack[listStack.length - 1].type !== 'ul'))) {
-          const closedList = listStack.pop();
-          if (closedList) {
-            processedLines.push(`</${closedList.type}>`);
-          }
-        }
-        
-        // Start a new list if needed
-        if (listStack.length === 0 || listStack[listStack.length - 1].indent < indentLevel) {
-          processedLines.push(`<ul${indentLevel > 0 ? ` style="margin-left:${indentLevel * 20}px"` : ''}>`);
-          listStack.push({ type: 'ul', indent: indentLevel, html: '<ul>' });
-        }
-        
-        // Add the list item
-        processedLines.push(`<li>${content}</li>`);
-        continue;
-      }
-      
-      // Check for ordered list item (allow more flexible indentation)
-      const orderedMatch = line.match(/^(\s*)(\d+)[.)] (.*?)$/);
-      if (orderedMatch) {
-        const [, indent, , content] = orderedMatch; // Ignore number
-        const indentLevel = indent ? Math.ceil(indent.length / 2) : 0;
-        
-        // Check if we need to close any lists or start a new one
-        while (listStack.length > 0 && 
-              (listStack[listStack.length - 1].indent > indentLevel || 
-              (listStack[listStack.length - 1].indent === indentLevel && listStack[listStack.length - 1].type !== 'ol'))) {
-          const closedList = listStack.pop();
-          if (closedList) {
-            processedLines.push(`</${closedList.type}>`);
-          }
-        }
-        
-        // Start a new list if needed
-        if (listStack.length === 0 || listStack[listStack.length - 1].indent < indentLevel) {
-          processedLines.push(`<ol${indentLevel > 0 ? ` style="margin-left:${indentLevel * 20}px"` : ''}>`);
-          listStack.push({ type: 'ol', indent: indentLevel, html: '<ol>' });
-        }
-        
-        // Add the list item
-        processedLines.push(`<li>${content}</li>`);
-        continue;
-      }
-      
-      // If it's not a list item, close all open lists
-      if (listStack.length > 0) {
-        for (let j = listStack.length - 1; j >= 0; j--) {
-          processedLines.push(`</${listStack[j].type}>`);
-        }
-        listStack.length = 0;
-      }
-      
-      // Add the non-list line
-      processedLines.push(line);
-    }
-    
-    // Close any remaining open lists
-    for (let i = listStack.length - 1; i >= 0; i--) {
-      processedLines.push(`</${listStack[i].type}>`);
-    }
-    
-    return processedLines.join('\n');
+    // Regex to match top-level list items
+    const listRegex = /((?:^- .*\n?)+)/gm;
+    html = html.replace(listRegex, (match) => {
+      const lines = match.trimEnd().split('\n');
+      let listHtml = '<ul>\n';
+      lines.forEach(line => {
+        listHtml += `<li>${line.substring(2)}</li>\n`;
+      });
+      listHtml += '</ul>';
+      return listHtml;
+    });
   };
-  
-  // Apply indented list processing
-  html = processIndentedLists();
+
+  processIndentedLists();
+
+
+  // Convert task lists
+  html = html.replace(/- \[(x| )\] (.*)/g, (match, checked, text) => {
+    const isChecked = checked === "x";
+    return `<li data-type="taskItem" data-checked="${isChecked}"><label><input type="checkbox" ${
+      isChecked ? 'checked="checked"' : ""
+    }><span></span></label><div><p>${text}</p></div></li>`;
+  });
+  html = html.replace(
+    /(<li data-type="taskItem".*?<\/li>)+/g,
+    (match) => `<ul data-type="taskList">${match}</ul>`
+  );
 
   // Convert headings
-  html = html.replace(/^### (.*$)(\n)?/gm, "<h3>$1</h3>");
-  html = html.replace(/^## (.*$)(\n)?/gm, "<h2>$1</h2>");
-  html = html.replace(/^# (.*$)(\n)?/gm, "<h1>$1</h1>");
+  html = html.replace(/^#### (.*$)/gim, "<h4>$1</h4>");
+  html = html.replace(/^### (.*$)/gim, "<h3>$1</h3>");
+  html = html.replace(/^## (.*$)/gim, "<h2>$1</h2>");
+  html = html.replace(/^# (.*$)/gim, "<h1>$1</h1>");
 
   // Convert bold and italic
-  html = html.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
-  html = html.replace(/\*([^*]+)\*/g, "<em>$1</em>");
-  html = html.replace(/_([^_]+)_/g, "<u>$1</u>");
+  html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+  html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
 
-  // Convert code blocks
-  html = html.replace(/```([^`]*?)```/gs, "<pre><code>$1</code></pre>");
-  html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
+  // Convert links
+  html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>');
 
-  // Convert paragraphs (lines not starting with special characters)
-  html = html.replace(/^(?![#<*_\s*-+\d.])(.*$)/gm, "<p>$1</p>");
-
-  // Clean up empty paragraphs and normalize whitespace
-  html = html.replace(/<p>\s*<\/p>/g, "");
-  html = html.trim();
+  // Convert paragraphs
+  html = html
+    .split("\n")
+    .map((line) => {
+      if (
+        line.trim() === "" ||
+        line.startsWith("<h") ||
+        line.startsWith("<ul") ||
+        line.startsWith("<li")
+      ) {
+        return line;
+      }
+      return `<p>${line}</p>`;
+    })
+    .join("\n");
 
   return html;
 };
 
 /**
- * Converts HTML content to plain text
+ * Converts HTML to plain text
  */
 export const htmlToPlainText = (html: string): string => {
-  return html
-    .replace(/<[^>]+>/g, "") // Remove all HTML tags
-    .replace(/&nbsp;/g, " ")
-    .replace(/\n\n+/g, "\n\n")
-    .trim();
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = html;
+  return tempDiv.textContent || tempDiv.innerText || "";
 }; 

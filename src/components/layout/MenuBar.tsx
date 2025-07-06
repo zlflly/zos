@@ -17,6 +17,8 @@ import { useAppStoreShallow } from "@/stores/helpers";
 import { Slider } from "@/components/ui/slider";
 import { Volume1, Volume2, VolumeX, Settings } from "lucide-react";
 import { useSound, Sounds } from "@/hooks/useSound";
+import { useAppStore } from "@/stores/useAppStore";
+import { appRegistry } from "@/config/appRegistry";
 
 const finderHelpItems = [
   {
@@ -115,6 +117,19 @@ function DefaultMenuItems() {
   const launchApp = useLaunchApp();
   const [isHelpDialogOpen, setIsHelpDialogOpen] = useState(false);
   const [isAboutDialogOpen, setIsAboutDialogOpen] = useState(false);
+  const {
+    instanceWindowOrder,
+    instances,
+    bringInstanceToForeground,
+    getForegroundInstance,
+  } = useAppStoreShallow((state) => ({
+    instanceWindowOrder: state.instanceWindowOrder,
+    instances: state.instances,
+    bringInstanceToForeground: state.bringInstanceToForeground,
+    getForegroundInstance: state.getForegroundInstance,
+  }));
+
+  const foregroundInstanceId = getForegroundInstance()?.instanceId;
 
   const handleLaunchFinder = (path: string) => {
     launchApp("finder", { initialPath: path });
@@ -290,94 +305,46 @@ function DefaultMenuItems() {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" sideOffset={1} className="px-0">
           <DropdownMenuItem
-            disabled
-            className="text-md h-6 px-3 active:bg-gray-900 active:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={() => handleLaunchFinder("/")}
+            className="text-md h-6 px-3 active:bg-gray-900 active:text-white"
           >
-            Back
+            Home
           </DropdownMenuItem>
-          <DropdownMenuItem
-            disabled
-            className="text-md h-6 px-3 active:bg-gray-900 active:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Forward
-          </DropdownMenuItem>
-          <DropdownMenuSeparator className="h-[2px] bg-black my-1" />
           <DropdownMenuItem
             onClick={() => handleLaunchFinder("/Applications")}
-            className="text-md h-6 px-3 active:bg-gray-900 active:text-white flex items-center gap-2"
+            className="text-md h-6 px-3 active:bg-gray-900 active:text-white"
           >
-            <img
-              src="/icons/applications.png"
-              alt=""
-              className="w-4 h-4 [image-rendering:pixelated]"
-            />
             Applications
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => handleLaunchFinder("/Documents")}
-            className="text-md h-6 px-3 active:bg-gray-900 active:text-white flex items-center gap-2"
+            className="text-md h-6 px-3 active:bg-gray-900 active:text-white"
           >
-            <img
-              src="/icons/documents.png"
-              alt=""
-              className="w-4 h-4 [image-rendering:pixelated]"
-            />
             Documents
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => handleLaunchFinder("/Images")}
-            className="text-md h-6 px-3 active:bg-gray-900 active:text-white flex items-center gap-2"
+            onClick={() => handleLaunchFinder("/Desktop")}
+            className="text-md h-6 px-3 active:bg-gray-900 active:text-white"
           >
-            <img
-              src="/icons/images.png"
-              alt=""
-              className="w-4 h-4 [image-rendering:pixelated]"
-            />
-            Images
+            Desktop
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => handleLaunchFinder("/Music")}
-            className="text-md h-6 px-3 active:bg-gray-900 active:text-white flex items-center gap-2"
+            className="text-md h-6 px-3 active:bg-gray-900 active:text-white"
           >
-            <img
-              src="/icons/sounds.png"
-              alt=""
-              className="w-4 h-4 [image-rendering:pixelated]"
-            />
             Music
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => handleLaunchFinder("/Sites")}
-            className="text-md h-6 px-3 active:bg-gray-900 active:text-white flex items-center gap-2"
+            onClick={() => handleLaunchFinder("/Pictures")}
+            className="text-md h-6 px-3 active:bg-gray-900 active:text-white"
           >
-            <img
-              src="/icons/sites.png"
-              alt=""
-              className="w-4 h-4 [image-rendering:pixelated]"
-            />
-            Sites
+            Pictures
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => handleLaunchFinder("/Videos")}
-            className="text-md h-6 px-3 active:bg-gray-900 active:text-white flex items-center gap-2"
+            onClick={() => handleLaunchFinder("/Games")}
+            className="text-md h-6 px-3 active:bg-gray-900 active:text-white"
           >
-            <img
-              src="/icons/movies.png"
-              alt=""
-              className="w-4 h-4 [image-rendering:pixelated]"
-            />
-            Videos
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => handleLaunchFinder("/Trash")}
-            className="text-md h-6 px-3 active:bg-gray-900 active:text-white flex items-center gap-2"
-          >
-            <img
-              src="/icons/trash-empty.png"
-              alt=""
-              className="w-4 h-4 [image-rendering:pixelated]"
-            />
-            Trash
+            Games
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -407,6 +374,50 @@ function DefaultMenuItems() {
           >
             About Finder
           </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* Window Menu */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="default"
+            className="h-6 text-md px-2 py-1 border-none hover:bg-gray-200 active:bg-gray-900 active:text-white focus-visible:ring-0"
+          >
+            Window
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" sideOffset={1} className="px-0">
+          <DropdownMenuItem
+            disabled
+            className="text-md h-6 px-3 active:bg-gray-900 active:text-white"
+          >
+            Minimize All
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            disabled
+            className="text-md h-6 px-3 active:bg-gray-900 active:text-white"
+          >
+            Zoom All
+          </DropdownMenuItem>
+          <DropdownMenuSeparator className="h-[2px] bg-black my-1" />
+          {instanceWindowOrder
+            .map((id) => instances[id])
+            .filter((instance) => instance?.isOpen)
+            .map((instance) => {
+              const appConfig = appRegistry[instance.appId];
+              return (
+                <DropdownMenuCheckboxItem
+                  key={instance.instanceId}
+                  checked={instance.instanceId === foregroundInstanceId}
+                  onClick={() => bringInstanceToForeground(instance.instanceId)}
+                  className="text-md h-6 px-3 pl-8 active:bg-gray-900 active:text-white flex justify-between items-center"
+                >
+                  <span>{instance.title || appConfig.name}</span>
+                </DropdownMenuCheckboxItem>
+              );
+            })}
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -488,7 +499,7 @@ function VolumeControl() {
 }
 
 export function MenuBar({ children }: MenuBarProps) {
-  const { apps } = useAppContext();
+  const { apps, bringToForeground } = useAppContext();
   const { getForegroundInstance } = useAppStoreShallow((s) => ({
     getForegroundInstance: s.getForegroundInstance,
   }));

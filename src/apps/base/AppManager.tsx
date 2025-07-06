@@ -112,31 +112,8 @@ export function AppManager({ apps }: AppManagerProps) {
     const handleUrlNavigation = async () => {
       const path = window.location.pathname;
       console.log("[AppManager] Checking path:", path); // Keep this log for debugging
-      const ieShareCode = extractCodeFromPath(path); // Specifically checks for /internet-explorer/:code format
 
-      if (ieShareCode) {
-        // Handle shared Internet Explorer URL - Pass code directly
-        console.log("[AppManager] Detected IE share code:", ieShareCode);
-        toast.info("Opening shared Internet Explorer link...");
-
-        // Use setTimeout to ensure the event listener is ready
-        setTimeout(() => {
-          const event = new CustomEvent("launchApp", {
-            detail: {
-              appId: "internet-explorer",
-              initialData: {
-                shareCode: ieShareCode,
-              },
-            },
-          });
-          window.dispatchEvent(event);
-          console.log(
-            "[AppManager] Dispatched launchApp event for IE share code."
-          );
-        }, 0);
-
-        window.history.replaceState({}, "", "/"); // Clean URL
-      } else if (path.startsWith("/ipod/")) {
+      if (path.startsWith("/ipod/")) {
         const videoId = path.substring("/ipod/".length);
         if (videoId) {
           console.log("[AppManager] Detected iPod videoId:", videoId);
@@ -151,25 +128,6 @@ export function AppManager({ apps }: AppManagerProps) {
             window.dispatchEvent(event);
             console.log(
               "[AppManager] Dispatched launchApp event for iPod videoId."
-            );
-          }, 0);
-          window.history.replaceState({}, "", "/"); // Clean URL
-        }
-      } else if (path.startsWith("/videos/")) {
-        const videoId = path.substring("/videos/".length);
-        if (videoId) {
-          console.log("[AppManager] Detected Videos videoId:", videoId);
-          toast.info("Opening shared video...");
-          setTimeout(() => {
-            const event = new CustomEvent("launchApp", {
-              detail: {
-                appId: "videos",
-                initialData: { videoId },
-              },
-            });
-            window.dispatchEvent(event);
-            console.log(
-              "[AppManager] Dispatched launchApp event for Videos videoId."
             );
           }, 0);
           window.history.replaceState({}, "", "/"); // Clean URL
@@ -196,13 +154,8 @@ export function AppManager({ apps }: AppManagerProps) {
           // console.log(`Path ${path} does not correspond to a known app.`);
           // Maybe redirect to root or show a 404 within the app context
           // For now, just clean the URL if it wasn't a valid app path or IE code
-          // Update condition: Only clean if it's not an IE path (we handle cleaning IE path above)
-          // Update condition: Also check for ipod and videos paths
-          if (
-            !path.startsWith("/internet-explorer/") &&
-            !path.startsWith("/ipod/") &&
-            !path.startsWith("/videos/")
-          ) {
+          // Update condition: Only clean if it's not an iPod path
+          if (!path.startsWith("/ipod/")) {
             window.history.replaceState({}, "", "/");
           }
         }
