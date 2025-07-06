@@ -560,7 +560,7 @@ export function useFileSystem(
         const artistSet = new Set<string>();
 
         // Collect all unique artists
-        videoTracks.forEach((video) => {
+        ipodTracks.forEach((video) => {
           if (video.artist) {
             artistSet.add(video.artist);
           }
@@ -576,7 +576,7 @@ export function useFileSystem(
         }));
 
         // Add an "Unknown Artist" folder if there are videos without artists
-        if (videoTracks.some((video) => !video.artist)) {
+        if (ipodTracks.some((video) => !video.artist)) {
           displayFiles.push({
             name: "Unknown Artist",
             isDirectory: true,
@@ -590,7 +590,7 @@ export function useFileSystem(
         const artistName = decodeURIComponent(
           currentPath.replace("/Videos/", "")
         );
-        const artistVideos = videoTracks.filter((video) =>
+        const artistVideos = ipodTracks.filter((video) =>
           artistName === "Unknown Artist"
             ? !video.artist
             : video.artist === artistName
@@ -598,7 +598,7 @@ export function useFileSystem(
 
         // Display all videos for this artist
         displayFiles = artistVideos.map((video) => {
-          const globalIndex = videoTracks.findIndex((v) => v.id === video.id);
+          const globalIndex = ipodTracks.findIndex((v) => v.id === video.id);
           return {
             name: `${video.title}.mov`,
             isDirectory: false,
@@ -752,7 +752,7 @@ export function useFileSystem(
       }
       // b. Video Library (Virtual)
       else if (currentPath === "/Video Library") {
-        displayFiles = videoTracks.map((video) => ({
+        displayFiles = ipodTracks.map((video) => ({
           name: `${video.title}.mov`,
           isDirectory: false,
           path: `/Video Library/${video.title}.mov`,
@@ -892,10 +892,9 @@ export function useFileSystem(
             });
           }
         } else if (file.path.startsWith("/Images/")) {
-          // Pass the Blob object itself to Paint via initialData
-          launchApp("paint", {
-            initialData: { path: file.path, content: contentToUse },
-          }); // Pass contentToUse (Blob)
+          // Images can no longer be opened since paint app was removed
+          console.warn("Paint app was removed - cannot open image files");
+          setError("Image viewer not available");
         } else if (file.appId === "ipod" && file.data?.index !== undefined) {
           // iPod uses data directly from the index we calculated
           const trackIndex = file.data.index;
@@ -903,14 +902,9 @@ export function useFileSystem(
           setIpodPlaying(true);
           launchApp("ipod");
         } else if (file.type === "site-link" && file.data?.url) {
-          // Pass url and year via initialData instead of using IE store directly
-          launchApp("internet-explorer", {
-            initialData: {
-              url: file.data.url,
-              year: file.data.year || "current",
-            },
-          });
-          // internetExplorerStore.setPendingNavigation(file.data.url, file.data.year || "current");
+          // Internet Explorer app was removed - cannot open site links
+          console.warn("Internet Explorer app was removed - cannot open site links");
+          setError("Web browser not available");
         } else {
           console.warn(
             `[useFileSystem] No handler defined for opening file type: ${file.type} at path: ${file.path}`

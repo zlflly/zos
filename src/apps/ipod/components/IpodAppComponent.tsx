@@ -360,7 +360,7 @@ export function IpodAppComponent({
     lyricsAlignment,
     chineseVariant,
     koreanDisplay,
-    lyricsTranslationRequest,
+
     isFullScreen,
     toggleFullScreen,
     setCurrentIndex,
@@ -382,7 +382,7 @@ export function IpodAppComponent({
     lyricsAlignment: s.lyricsAlignment,
     chineseVariant: s.chineseVariant,
     koreanDisplay: s.koreanDisplay,
-    lyricsTranslationRequest: s.lyricsTranslationRequest,
+
     isFullScreen: s.isFullScreen,
     toggleFullScreen: s.toggleFullScreen,
     setCurrentIndex: s.setCurrentIndex,

@@ -3,10 +3,9 @@ import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import { Maximize, Minimize, Copy, Check, Save, Code, GripVertical, Plus } from "lucide-react";
 import { createPortal } from "react-dom";
 import * as shiki from "shiki";
-import {
-  loadHtmlPreviewSplit,
-  saveHtmlPreviewSplit,
-} from "@/stores/useAppStore";
+// HTML preview split functionality removed during simplification
+const loadHtmlPreviewSplit = () => false;
+const saveHtmlPreviewSplit = (value: boolean) => {};
 import { useSound, Sounds } from "../../hooks/useSound";
 import { useAppStore } from "@/stores/useAppStore";
 
@@ -189,7 +188,7 @@ export default function HtmlPreview({
   const finalProcessedHtmlRef = useRef<string | null>(null);
   const [streamPreviewHtml, setStreamPreviewHtml] = useState<string>(""); // NEW state to hold live HTML preview during streaming
   const lastStreamRenderRef = useRef<number>(0); // To throttle updates
-  const terminalSoundsEnabled = useAppStore(state => state.terminalSoundsEnabled);
+  const terminalSoundsEnabled = useAppStore(state => state.uiSoundsEnabled);
 
   // Ensure base URL has a protocol
   const normalizedBaseUrl = baseUrlForAiContent

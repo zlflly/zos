@@ -5,7 +5,7 @@ import { MenuBar } from "@/components/layout/MenuBar";
 import { Desktop } from "@/components/layout/Desktop";
 import { AppId, getAppComponent, appRegistry } from "@/config/appRegistry";
 import { useAppStoreShallow } from "@/stores/helpers";
-import { extractCodeFromPath } from "@/utils/sharedUrl";
+
 import { toast } from "sonner";
 
 interface AppManagerProps {

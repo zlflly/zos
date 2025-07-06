@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState, useRef, useEffect } from "react";
-import { useInternetExplorerStore, DEFAULT_TIMELINE } from "@/stores/useInternetExplorerStore";
+// Internet Explorer store removed during simplification
 
 interface FutureSettingsDialogProps {
   isOpen: boolean;

@@ -1,12 +1,9 @@
 import { useState, useRef, useEffect, useLayoutEffect } from "react";
-import ReactPlayer from "react-player";
+import ReactPlayer from "react-player/lazy";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Track } from "@/stores/useIpodStore";
 import { useAppStore } from "@/stores/useAppStore";
-import { LyricsDisplay } from "./LyricsDisplay";
-
-import { LyricsAlignment, ChineseVariant, KoreanDisplay } from "@/types/lyrics";
 
 // Battery component
 function BatteryIndicator({ backlightOn }: { backlightOn: boolean }) {
@@ -351,16 +348,8 @@ interface IpodScreenProps {
   onToggleVideo: () => void;
   lcdFilterOn: boolean;
   ipodVolume: number;
-  showStatusCallback: (message: string) => void;
-  showLyrics: boolean;
-  lyricsAlignment: LyricsAlignment;
-  chineseVariant: ChineseVariant;
-  koreanDisplay: KoreanDisplay;
-  lyricOffset: number;
-  adjustLyricOffset: (deltaMs: number) => void;
   registerActivity: () => void;
   isFullScreen: boolean;
-  lyricsControls: ReturnType<typeof useLyrics>;
 }
 
 // Main IpodScreen component
@@ -391,16 +380,8 @@ export function IpodScreen({
   onToggleVideo,
   lcdFilterOn,
   ipodVolume,
-  showStatusCallback,
-  showLyrics,
-  lyricsAlignment,
-  chineseVariant,
-  koreanDisplay,
-  lyricOffset,
-  adjustLyricOffset,
   registerActivity,
   isFullScreen,
-  lyricsControls,
 }: IpodScreenProps) {
   // Animation variants for menu transitions
   const menuVariants = {
@@ -534,7 +515,7 @@ export function IpodScreen({
     }
   }, [menuMode, menuHistory.length]);
 
-  const shouldShowLyrics = showLyrics;
+  const shouldShowLyrics = false;
 
   return (
     <div
@@ -666,31 +647,6 @@ export function IpodScreen({
                 </motion.div>
               )}
             </AnimatePresence>
-
-            {/* Lyrics Overlay */}
-            <LyricsDisplay
-              lines={lyricsControls.lines}
-              currentLine={lyricsControls.currentLine}
-              isLoading={lyricsControls.isLoading}
-              error={lyricsControls.error}
-              visible={shouldShowLyrics}
-              videoVisible={showVideo}
-              alignment={lyricsAlignment}
-              chineseVariant={chineseVariant}
-              koreanDisplay={koreanDisplay}
-              isTranslating={lyricsControls.isTranslating}
-              onAdjustOffset={(deltaMs) => {
-                adjustLyricOffset(deltaMs);
-                const newOffset = lyricOffset + deltaMs;
-                const sign = newOffset > 0 ? "+" : newOffset < 0 ? "" : "";
-                showStatusCallback(
-                  `Offset ${sign}${(newOffset / 1000).toFixed(2)}s`
-                );
-                // Force immediate update of lyrics display with new offset
-                const updatedTime = elapsedTime + newOffset / 1000;
-                lyricsControls.updateCurrentTimeManually(updatedTime);
-              }}
-            />
           </div>
         </div>
       )}

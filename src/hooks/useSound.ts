@@ -44,18 +44,23 @@ export const preloadSounds = async (sounds: string[]) => {
 
 export function useSound(soundPath: string, volume: number = 0.3) {
   const gainNodeRef = useRef<GainNode | null>(null);
-  // Reactively track global UI volume
-  const uiVolume = useAppStore((s) => s.uiVolume);
-  const masterVolume = useAppStore((s) => s.masterVolume); // Get masterVolume
+  // Reactively track global UI volume with safe defaults
+  const uiVolume = useAppStore((s) => s.uiVolume ?? 1);
+  const masterVolume = useAppStore((s) => s.masterVolume ?? 1);
 
   useEffect(() => {
     // Create gain node for volume control
     gainNodeRef.current = getAudioContext().createGain();
     
     // Ensure all volume values are valid numbers
-    const safeVolume = isFinite(volume) ? volume : 0.3;
-    const safeUiVolume = isFinite(uiVolume) ? uiVolume : 1;
-    const safeMasterVolume = isFinite(masterVolume) ? masterVolume : 1;
+    const safeVolume = (typeof volume === 'number' && isFinite(volume)) ? volume : 0.3;
+    const safeUiVolume = (typeof uiVolume === 'number' && isFinite(uiVolume)) ? uiVolume : 1;
+    const safeMasterVolume = (typeof masterVolume === 'number' && isFinite(masterVolume)) ? masterVolume : 1;
+    
+    // Debug log to track problematic values
+    if (!isFinite(safeVolume * safeUiVolume * safeMasterVolume)) {
+      console.error('AudioParam error detected:', { volume, uiVolume, masterVolume, safeVolume, safeUiVolume, safeMasterVolume });
+    }
     
     gainNodeRef.current.gain.value = safeVolume * safeUiVolume * safeMasterVolume;
 
@@ -93,9 +98,9 @@ export function useSound(soundPath: string, volume: number = 0.3) {
           }
         }
         gainNodeRef.current = getAudioContext().createGain();
-        const safeVolume = isFinite(volume) ? volume : 0.3;
-        const safeUiVolume = isFinite(uiVolume) ? uiVolume : 1;
-        const safeMasterVolume = isFinite(masterVolume) ? masterVolume : 1;
+        const safeVolume = (typeof volume === 'number' && isFinite(volume)) ? volume : 0.3;
+        const safeUiVolume = (typeof uiVolume === 'number' && isFinite(uiVolume)) ? uiVolume : 1;
+        const safeMasterVolume = (typeof masterVolume === 'number' && isFinite(masterVolume)) ? masterVolume : 1;
         gainNodeRef.current.gain.value = safeVolume * safeUiVolume * safeMasterVolume;
         gainNodeRef.current.connect(getAudioContext().destination);
       }
@@ -107,9 +112,9 @@ export function useSound(soundPath: string, volume: number = 0.3) {
       source.connect(gainNodeRef.current);
 
       // Set volume (apply global scaling)
-      const safeVolume = isFinite(volume) ? volume : 0.3;
-      const safeUiVolume = isFinite(uiVolume) ? uiVolume : 1;
-      const safeMasterVolume = isFinite(masterVolume) ? masterVolume : 1;
+      const safeVolume = (typeof volume === 'number' && isFinite(volume)) ? volume : 0.3;
+      const safeUiVolume = (typeof uiVolume === 'number' && isFinite(uiVolume)) ? uiVolume : 1;
+      const safeMasterVolume = (typeof masterVolume === 'number' && isFinite(masterVolume)) ? masterVolume : 1;
       gainNodeRef.current.gain.value = safeVolume * safeUiVolume * safeMasterVolume;
 
       // If too many concurrent sources are active, skip to avoid audio congestion

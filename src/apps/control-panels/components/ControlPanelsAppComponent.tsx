@@ -22,7 +22,7 @@ import { clearAllAppStates } from "@/stores/useAppStore";
 import { ensureIndexedDBInitialized } from "@/utils/indexedDB";
 import { useFileSystem, dbOperations, DocumentContent } from "@/apps/finder/hooks/useFileSystem";
 import { useAppStoreShallow } from "@/stores/helpers";
-import { setNextBootMessage, clearNextBootMessage } from "@/utils/bootMessage";
+import { clearNextBootMessage } from "@/utils/bootMessage";
 import { VolumeMixer } from "./VolumeMixer";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -673,10 +673,10 @@ export function ControlPanelsAppComponent({
                   Enable UI Sounds
                     </Label>
                   </div>
-            </div>
-          </TabsContent>
+              </div>
+            </TabsContent>
 
-          <TabsContent
+            <TabsContent
             value="security"
             className="flex-grow flex flex-col mt-0"
           >
@@ -687,32 +687,32 @@ export function ControlPanelsAppComponent({
                       </Label>
                 <span className="text-sm font-semibold flex-grow">
                   {username || "(Not set)"}
-                </span>
-                <Button
+                          </span>
+                            <Button
                   variant="outline"
                   size="sm"
                   onClick={promptSetUsername}
                   className="ml-auto"
                 >
                   {username ? "Change" : "Set"}
-                </Button>
-                    </div>
+                            </Button>
+                        </div>
               <div className="flex items-center space-x-2">
                 <Label htmlFor="token-status" className="text-sm w-[100px]">
                   Auth Token:
                 </Label>
                 <span className="text-sm font-semibold flex-grow">
                   {authToken ? "Set" : "Not Set"}
-                </span>
-                <Button
+                          </span>
+                        <Button
                   variant="outline"
                   size="sm"
                   onClick={promptVerifyToken}
                   className="ml-auto"
                 >
                   {authToken ? "Verify" : "Set"}
-                </Button>
-              </div>
+                        </Button>
+                      </div>
               <div className="flex items-center space-x-2">
                 <Label htmlFor="password-status" className="text-sm w-[100px]">
                   Password:
@@ -720,16 +720,16 @@ export function ControlPanelsAppComponent({
                 <span className="text-sm font-semibold flex-grow">
                   {hasPassword ? "Set" : "Not Set"}
                 </span>
-                <Button
+                    <Button
                   variant="outline"
                   size="sm"
                   onClick={() => toast.error("Authentication feature removed.")}
                   className="ml-auto"
                 >
                   {hasPassword ? "Change" : "Set"}
-                </Button>
+                    </Button>
                   </div>
-              <Button
+                  <Button
                 variant="destructive"
                 size="sm"
                 onClick={logout}
@@ -737,7 +737,7 @@ export function ControlPanelsAppComponent({
                 disabled={!username && !authToken}
               >
                 Logout
-              </Button>
+                  </Button>
 
               <hr className="my-4" />
 
@@ -746,14 +746,14 @@ export function ControlPanelsAppComponent({
               <div className="flex items-center space-x-2">
                 <Label htmlFor="first-boot" className="text-sm">
                   Show First Boot Experience
-                      </Label>
-                <Switch
+                    </Label>
+                  <Switch
                   id="first-boot"
                   checked={isFirstBoot}
                   onCheckedChange={() => setHasBooted()}
                   className="ml-auto"
-                />
-                    </div>
+                  />
+                </div>
 
                     <Button
                 variant="destructive"
@@ -771,14 +771,14 @@ export function ControlPanelsAppComponent({
               >
                 Format Disk
               </Button>
-              <Button
+                    <Button
                 variant="default"
                 size="sm"
                 onClick={handleBackup}
-                className="w-fit"
-              >
+                      className="w-fit"
+                    >
                 Backup All Data
-              </Button>
+                    </Button>
               <div className="flex items-center space-x-2 w-fit">
                 <Button
                   variant="default"
