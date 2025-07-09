@@ -15,6 +15,10 @@ import { ConfirmDialog } from "@/components/dialogs/ConfirmDialog";
 import { appMetadata, helpItems } from "..";
 import { useTextEditStore } from "@/stores/useTextEditStore";
 import { SlashCommands } from "../extensions/SlashCommands";
+import {
+  SpeechHighlight,
+  speechHighlightKey,
+} from "../extensions/SpeechHighlight";
 import { useFileSystem } from "@/apps/finder/hooks/useFileSystem";
 import {
   dbOperations,
@@ -27,16 +31,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown } from "lucide-react";
+
+import { ChevronDown, Volume2, Loader2 } from "lucide-react";
+import { PlaybackBars } from "@/components/ui/playback-bars";
 import { useLaunchApp } from "@/hooks/useLaunchApp";
 import { useSound, Sounds } from "@/hooks/useSound";
-import { useAppStore } from "@/stores/useAppStore";
-import { JSONContent, Editor } from "@tiptap/core";
+import { useTtsQueue } from "@/hooks/useTtsQueue";
 import {
   htmlToMarkdown,
   markdownToHtml,
   htmlToPlainText,
 } from "@/utils/markdown";
+import { useAppStore } from "@/stores/useAppStore";
+import { JSONContent, Editor } from "@tiptap/core";
 
 // Define the type for TextEdit initial data
 interface TextEditInitialData {
@@ -114,6 +121,7 @@ export function TextEditAppComponent({
 }: AppProps) {
   const [isHelpDialogOpen, setIsHelpDialogOpen] = useState(false);
   const [isAboutDialogOpen, setIsAboutDialogOpen] = useState(false);
+
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
   const [isConfirmNewDialogOpen, setIsConfirmNewDialogOpen] = useState(false);
   const [isCloseSaveDialogOpen, setIsCloseSaveDialogOpen] = useState(false);
@@ -239,8 +247,15 @@ export function TextEditAppComponent({
         nested: true,
       }),
       SlashCommands,
+      SpeechHighlight,
     ],
-    content: contentJson,
+    content: "",
+    editorProps: {
+      attributes: {
+        class:
+          "prose prose-sm prose-neutral max-w-none focus:outline-none p-4 [&>ul]:list-disc [&>ol]:list-decimal [&>*]:my-1 [&>p]:leading-5 [&>h1]:mt-3 [&>h1]:mb-2 [&>h2]:mt-2 [&>h2]:mb-1 [&>ul]:my-1 [&>ol]:my-1 [&>ul>li]:my-0.5 [&>ol>li]:my-0.5 [&>ul]:pl-0 [&>ol]:pl-4 [&>ul>li>p]:my-0 [&>ol>li>p]:my-0 [&>ul>li]:pl-0 [&>ol>li]:pl-0 [&>ul>li]:marker:text-neutral-900 [&>ol>li]:marker:text-neutral-900 [&>ul[data-type='taskList']]:ml-0 [&>ul[data-type='taskList']]:list-none [&>ul[data-type='taskList']>li]:flex [&>ul[data-type='taskList']>li]:items-start [&>ul[data-type='taskList']>li>label]:mr-2 [&>ul[data-type='taskList']>li>label>input]:mt-1 [&>ul[data-type='taskList']>li>div]:flex-1 [&>ul[data-type='taskList']>li>div>p]:my-0 [&>ul>li>ul]:pl-1 [&>ol>li>ol]:pl-1 [&>ul>li>ol]:pl-1 [&>ol>li>ul]:pl-1 [&>ul>li>ul]:my-0 [&>ol>li>ol]:my-0 [&>ul>li>ul>li>p]:my-0 min-h-full font-geneva-12 text-[12px] [&>h1]:text-[24px] [&>h2]:text-[20px] [&>h3]:text-[16px] [&>h1]:font-['ChicagoKare'] [&>h2]:font-['ChicagoKare'] [&>h3]:font-['ChicagoKare']",
+      },
+    },
     onUpdate: ({ editor }) => {
       // Only mark changes and store latest content/JSON in onUpdate
       const currentJson = editor.getJSON();
@@ -537,15 +552,12 @@ export function TextEditAppComponent({
   }, [contentJson, editor, setHasUnsavedChanges]);
   // --- End external sync effect --- //
 
+
+
   const handleNewFile = () => {
-    // If there are unsaved changes, prompt the user before creating a new file
-    if (hasUnsavedChanges) {
-      setIsConfirmNewDialogOpen(true);
-    } else {
-      // Instead of clearing current instance, create a new one
-      const newInstanceId = launchAppInstance("textedit", null, "Untitled", true);
-      console.log(`Created new TextEdit file in instance: ${newInstanceId}`);
-    }
+    // Instead of clearing current instance, create a new one
+    const newInstanceId = launchAppInstance("textedit", null, "Untitled", true);
+    console.log(`Created new TextEdit file in instance: ${newInstanceId}`);
   };
 
   const createNewFile = () => {
@@ -912,6 +924,106 @@ export function TextEditAppComponent({
     }
   };
 
+  // --- Text-to-Speech (TTS) --- //
+  const { speak, stop, isSpeaking } = useTtsQueue();
+  const speechEnabled = useAppStore((state) => state.speechEnabled);
+
+  // Local UI state for TTS loading (waiting for audio to begin)
+  const [isTtsLoading, setIsTtsLoading] = useState(false);
+
+  // When speech starts, clear the loading state
+  useEffect(() => {
+    if (isSpeaking) {
+      setIsTtsLoading(false);
+    }
+  }, [isSpeaking]);
+
+  /** Speak either the current selection or the full document */
+  const handleSpeak = () => {
+    if (!editor) return;
+
+    // Helper to highlight an editor range using the decoration plugin
+    const highlightRange = (from: number, to: number) => {
+      const { state, view } = editor;
+      const tr = state.tr.setMeta(speechHighlightKey, { range: { from, to } });
+      view.dispatch(tr);
+    };
+
+    // Helper to clear any existing highlight
+    const clearHighlight = () => {
+      const { state, view } = editor;
+      const tr = state.tr.setMeta(speechHighlightKey, { clear: true });
+      view.dispatch(tr);
+    };
+
+    // If currently speaking, clicking stops playback
+    if (isSpeaking) {
+      stop();
+      clearHighlight();
+      return;
+    }
+
+    // If we are already waiting for TTS response, cancel it on second click
+    if (isTtsLoading) {
+      stop();
+      setIsTtsLoading(false);
+      return;
+    }
+
+    const { from, to, empty } = editor.state.selection;
+
+    if (empty) {
+      // Collect all textblock nodes with their positions so we can highlight
+      const blocks: { text: string; from: number; to: number }[] = [];
+      editor.state.doc.descendants((node, pos) => {
+        if (node.isTextblock && node.textContent.trim()) {
+          const from = pos + 1; // +1 to skip the opening tag
+          const to = pos + node.nodeSize - 1; // -1 to skip the closing tag
+          blocks.push({
+            text: node.textContent.trim(),
+            from,
+            to,
+          });
+        }
+      });
+
+      if (blocks.length === 0) return;
+
+      setIsTtsLoading(true);
+
+      // Queue every block immediately so network fetches start in parallel
+      blocks.forEach(({ text }, idx) => {
+        speak(text, () => {
+          const nextIdx = idx + 1;
+          if (nextIdx < blocks.length) {
+            const nextBlock = blocks[nextIdx];
+            clearHighlight();
+            highlightRange(nextBlock.from, nextBlock.to);
+          } else {
+            clearHighlight();
+          }
+        });
+      });
+
+      // Highlight the first block right away
+      const { from: firstFrom, to: firstTo } = blocks[0];
+      highlightRange(firstFrom, firstTo);
+    } else {
+      // Speak the selected text as-is
+      const textToSpeak = editor.state.doc.textBetween(from, to, "\n").trim();
+      if (textToSpeak) {
+        setIsTtsLoading(true);
+
+        // Highlight the selection
+        highlightRange(from, to);
+
+        speak(textToSpeak, () => {
+          clearHighlight();
+        });
+      }
+    }
+  };
+
   // Determine if the window title should display the unsaved indicator. This
   // should show when there are unsaved changes or when an untitled document
   // contains any content but hasn't been saved to a file yet.
@@ -1217,12 +1329,36 @@ export function TextEditAppComponent({
                   </button>
                 </div>
 
+                {/* Divider */}
+                <div className="w-[1px] h-[22px] bg-[#808080] shadow-[1px_0_0_#ffffff]" />
 
+                {/* Speech */}
+                {speechEnabled && (
+                  <div className="flex">
+                    <button
+                      onClick={() => {
+                        playButtonClick();
+                        handleSpeak();
+                      }}
+                      className="w-[26px] h-[22px] flex items-center justify-center"
+                      aria-label={isSpeaking ? "Stop speech" : "Speak"}
+                    >
+                      {isTtsLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : isSpeaking ? (
+                        <PlaybackBars color="black" />
+                      ) : (
+                        <Volume2 className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
-            <div className="relative flex-grow">
-              <EditorContent editor={editor} className="h-full" />
-            </div>
+            <EditorContent
+              editor={editor}
+              className="flex-1 overflow-y-auto w-full min-h-0"
+            />
           </div>
           <InputDialog
             isOpen={isSaveDialogOpen}

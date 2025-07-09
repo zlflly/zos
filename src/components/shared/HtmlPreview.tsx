@@ -510,9 +510,9 @@ export default function HtmlPreview({
         playElevatorMusic("now");
       }
     } else {
-      if (stopElevatorMusic) {
-        stopElevatorMusic();
-      }
+        if (stopElevatorMusic) {
+          stopElevatorMusic();
+        }
       // Play ding sound only once at the end of streaming
       if (playDingSound && prevStreamingRef.current) {
         playDingSound();
@@ -523,8 +523,8 @@ export default function HtmlPreview({
     // Clean up when component unmounts or streaming ends
     return () => {
       if (stopElevatorMusic) {
-        stopElevatorMusic();
-      }
+      stopElevatorMusic();
+    }
     };
   }, [isStreaming, playElevatorMusic, stopElevatorMusic, playDingSound, mode]);
 

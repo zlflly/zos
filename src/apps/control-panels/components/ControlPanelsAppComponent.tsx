@@ -796,6 +796,25 @@ export function ControlPanelsAppComponent({
                 />
                   </div>
               </div>
+              <div className="mt-auto pt-4 space-y-2">
+                <p className="font-geneva-12 text-[10px]">
+                  Note: This app is a frontend for managing settings stored in your
+                  browser. No data is stored on our servers. Your settings are private
+                  and local to your device.
+                </p>
+                <p className="mt-4 font-bold font-geneva-12 text-[10px]">
+                  User is {hasPassword ? "logged in" : "not logged in"}
+                </p>
+                {!hasPassword && (
+                  <Button
+                    variant="retro"
+                    className="w-full mt-2"
+                    onClick={() => toast.error("Authentication feature removed.")}
+                  >
+                    Set Session Password
+                  </Button>
+                )}
+              </div>
             </TabsContent>
           </Tabs>
         </div>
@@ -819,23 +838,6 @@ export function ControlPanelsAppComponent({
       {/* <LoginDialog /> */}
       {/* <InputDialog ... /> */}
       {/* <LogoutDialog ... /> */}
-      <p className="font-geneva-12 text-[10px]">
-        Note: This app is a frontend for managing settings stored in your
-        browser. No data is stored on our servers. Your settings are private
-        and local to your device.
-      </p>
-      <p className="mt-4 font-bold font-geneva-12 text-[10px]">
-        User is {hasPassword ? "logged in" : "not logged in"}
-      </p>
-      {!hasPassword && (
-        <Button
-          variant="retro"
-          className="w-full mt-2"
-          onClick={() => toast.error("Authentication feature removed.")}
-        >
-          Set Session Password
-        </Button>
-      )}
       </WindowFrame>
   );
 }
