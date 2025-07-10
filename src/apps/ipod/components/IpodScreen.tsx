@@ -348,6 +348,14 @@ interface IpodScreenProps {
   onToggleVideo: () => void;
   lcdFilterOn: boolean;
   ipodVolume: number;
+  showStatus: (message: string) => void;
+  showLyrics: boolean;
+  lyricsAlignment: string;
+  chineseVariant: string;
+  koreanDisplay: string;
+  lyricOffset: number;
+  adjustLyricOffset: (delta: number) => void;
+  lyricsControls: any;
   registerActivity: () => void;
   isFullScreen: boolean;
 }
@@ -380,6 +388,14 @@ export function IpodScreen({
   onToggleVideo,
   lcdFilterOn,
   ipodVolume,
+  showStatus: _showStatus, // Renamed to indicate it's intentionally unused
+  showLyrics: _showLyrics,
+  lyricsAlignment: _lyricsAlignment,
+  chineseVariant: _chineseVariant,
+  koreanDisplay: _koreanDisplay,
+  lyricOffset: _lyricOffset,
+  adjustLyricOffset: _adjustLyricOffset,
+  lyricsControls: _lyricsControls,
   registerActivity,
   isFullScreen,
 }: IpodScreenProps) {

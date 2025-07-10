@@ -7,7 +7,7 @@ import * as shiki from "shiki";
 const loadHtmlPreviewSplit = () => false;
 const saveHtmlPreviewSplit = (_value: boolean) => {};
 import { useSound, Sounds } from "../../hooks/useSound";
-import { useAppStore } from "@/stores/useAppStore";
+// import { useAppStore } from "@/stores/useAppStore"; // Unused import
 
 // Create a singleton highlighter instance
 let highlighterPromise: Promise<shiki.Highlighter> | null = null;

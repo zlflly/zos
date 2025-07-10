@@ -1,0 +1,33 @@
+{
+  "version": 3,
+  "routes": [
+    {
+      "src": "^/(?:(.+)/)?index(?:\\.html)?/?$",
+      "headers": {
+        "Location": "/$1"
+      },
+      "status": 308
+    },
+    {
+      "src": "^/(.*)\\.html/?$",
+      "headers": {
+        "Location": "/$1"
+      },
+      "status": 308
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "^/api/utils/rate-limit$",
+      "dest": "/api/utils/rate-limit",
+      "check": true
+    },
+    {
+      "src": "^/api/utils/url$",
+      "dest": "/api/utils/url",
+      "check": true
+    }
+  ],
+  "overrides": {}
+}

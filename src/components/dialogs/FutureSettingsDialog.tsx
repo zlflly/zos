@@ -18,9 +18,9 @@ const FutureSettingsDialog = ({
   const saveButtonRef = useRef<HTMLButtonElement>(null);
   
   // Internet Explorer store removed during simplification - using placeholder
-  const timelineSettings = {};
-  const setTimelineSettings = () => {};
-  const currentYear = "2024";
+  const timelineSettings: Record<string, string> = {};
+  const setTimelineSettings = (_settings: Record<string, string>) => {};
+  const currentYear: string | "current" = "2024";
 
   // Update selectedYear when dialog opens
   useEffect(() => {

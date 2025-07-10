@@ -12,7 +12,7 @@ export function useAuth() {
   // const createUser = async () => ({ ok: false, error: "Authentication feature removed" }); // Unused
   const logout = async () => {};
   const storeCheckHasPassword = async () => false;
-  const storeSetPassword = async () => ({ ok: false, error: "Authentication feature removed" });
+  const storeSetPassword = async (_password: string) => ({ ok: false, error: "Authentication feature removed" });
 
   // Set username dialog states
   const [isUsernameDialogOpen, setIsUsernameDialogOpen] = useState(false);
