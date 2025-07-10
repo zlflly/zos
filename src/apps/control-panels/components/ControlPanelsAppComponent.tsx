@@ -4,9 +4,9 @@ import { ControlPanelsMenuBar } from "./ControlPanelsMenuBar";
 import { HelpDialog } from "@/components/dialogs/HelpDialog";
 import { AboutDialog } from "@/components/dialogs/AboutDialog";
 import { ConfirmDialog } from "@/components/dialogs/ConfirmDialog";
-import { LoginDialog } from "@/components/dialogs/LoginDialog";
+// import { LoginDialog } from "@/components/dialogs/LoginDialog"; // 暂时注释掉登录功能
 import { InputDialog } from "@/components/dialogs/InputDialog";
-import { LogoutDialog } from "@/components/dialogs/LogoutDialog";
+// import { LogoutDialog } from "@/components/dialogs/LogoutDialog"; // 暂时注释掉登录功能
 import { helpItems, appMetadata } from "..";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -1479,23 +1479,29 @@ export function ControlPanelsAppComponent({
                       </div>
                     </div>
                   ) : (
+                    // TODO: 登录功能已暂时注释，日后可能会恢复
+                    // <div className="space-y-2">
+                    //   <div className="flex items-center justify-between">
+                    //     <div className="flex flex-col">
+                    //       <span className="text-[13px] font-geneva-12 font-medium">
+                    //         ryOS Account
+                    //       </span>
+                    //       <span className="text-[11px] text-gray-600 font-geneva-12">
+                    //         Login to send messages and more.
+                    //       </span>
+                    //     </div>
+                    //     <Button
+                    //       variant="retro"
+                    //       onClick={promptSetUsername}
+                    //       className="h-7"
+                    //     >
+                    //       Login
+                    //     </Button>
+                    //   </div>
+                    // </div>
                     <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex flex-col">
-                          <span className="text-[13px] font-geneva-12 font-medium">
-                            ryOS Account
-                          </span>
-                          <span className="text-[11px] text-gray-600 font-geneva-12">
-                            Login to send messages and more.
-                          </span>
-                        </div>
-                        <Button
-                          variant="retro"
-                          onClick={promptSetUsername}
-                          className="h-7"
-                        >
-                          Login
-                        </Button>
+                      <div className="text-[11px] text-gray-600 font-geneva-12">
+                        登录功能暂时禁用
                       </div>
                     </div>
                   )}
@@ -1720,12 +1726,13 @@ export function ControlPanelsAppComponent({
           title="Format File System"
           description="Are you sure you want to format the file system? This will permanently delete all documents (except sample documents), images, and custom wallpapers. ryOS will restart after format."
         />
+        {/* 登录功能暂时注释掉，日后可能会恢复 */}
         {/* Sign Up Dialog (was SetUsernameDialog) */}
+        {/*
         <LoginDialog
           initialTab="signup"
           isOpen={isUsernameDialogOpen}
           onOpenChange={setIsUsernameDialogOpen}
-          /* Login props (inactive) */
           usernameInput={verifyUsernameInput}
           onUsernameInputChange={setVerifyUsernameInput}
           passwordInput={verifyPasswordInput}
@@ -1735,7 +1742,6 @@ export function ControlPanelsAppComponent({
           }}
           isLoginLoading={isVerifyingToken}
           loginError={verifyError}
-          /* Sign Up props */
           newUsername={newUsername}
           onNewUsernameChange={setNewUsername}
           newPassword={newPassword}
@@ -1744,12 +1750,13 @@ export function ControlPanelsAppComponent({
           isSignUpLoading={isSettingUsername}
           signUpError={usernameError}
         />
+        */}
 
         {/* Log In Dialog */}
+        {/*
         <LoginDialog
           isOpen={isVerifyDialogOpen}
           onOpenChange={setVerifyDialogOpen}
-          /* Login props */
           usernameInput={verifyUsernameInput}
           onUsernameInputChange={setVerifyUsernameInput}
           passwordInput={verifyPasswordInput}
@@ -1759,7 +1766,6 @@ export function ControlPanelsAppComponent({
           }}
           isLoginLoading={isVerifyingToken}
           loginError={verifyError}
-          /* Sign Up props (inactive) */
           newUsername={verifyUsernameInput}
           onNewUsernameChange={setVerifyUsernameInput}
           newPassword={verifyPasswordInput}
@@ -1771,6 +1777,7 @@ export function ControlPanelsAppComponent({
           isSignUpLoading={false}
           signUpError={null}
         />
+        */}
         <InputDialog
           isOpen={isPasswordDialogOpen}
           onOpenChange={setIsPasswordDialogOpen}
@@ -1786,6 +1793,7 @@ export function ControlPanelsAppComponent({
           errorMessage={passwordError}
           submitLabel="Set Password"
         />
+        {/* 暂时注释掉登录功能
         <LogoutDialog
           isOpen={isLogoutConfirmDialogOpen}
           onOpenChange={setIsLogoutConfirmDialogOpen}
@@ -1797,6 +1805,7 @@ export function ControlPanelsAppComponent({
             setIsPasswordDialogOpen(true);
           }}
         />
+        */}
       </WindowFrame>
     </>
   );
