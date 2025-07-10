@@ -33,32 +33,8 @@ function WallpaperItem({
 }: WallpaperItemProps) {
   const { play: playClick } = useSound(Sounds.BUTTON_CLICK, 0.3);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [isLoading, setIsLoading] = useState(true); // Default to loading
-  const [isInView, setIsInView] = useState(false);
+  const [isLoading, setIsLoading] = useState(isVideo);
   const displayUrl = previewUrl || path;
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsInView(true);
-          observer.disconnect();
-        }
-      },
-      {
-        rootMargin: "100px", // Pre-load images 100px before they enter the viewport
-      }
-    );
-
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
 
   const handleClick = () => {
     playClick();
@@ -66,8 +42,6 @@ function WallpaperItem({
   };
 
   useEffect(() => {
-    if (!isInView) return; // Don't do anything if not in view
-
     if (isVideo && videoRef.current) {
       if (isSelected) {
         videoRef.current
@@ -78,17 +52,12 @@ function WallpaperItem({
       }
 
       // Check if video is already cached/loaded
-      if (videoRef.current.readyState >= 3) { // HAVE_FUTURE_DATA or better
+      if (videoRef.current.readyState >= 3) {
+        // HAVE_FUTURE_DATA or better
         setIsLoading(false);
       }
-    } else if (!isVideo) {
-      // For images, we can use the Image constructor to check load status
-      const img = new Image();
-      img.src = displayUrl;
-      img.onload = () => setIsLoading(false);
-      img.onerror = () => setIsLoading(false); // handle error case
     }
-  }, [isSelected, isVideo, displayUrl, isInView]);
+  }, [isSelected, isVideo, displayUrl]);
 
   const handleVideoLoaded = () => {
     setIsLoading(false);
@@ -98,68 +67,59 @@ function WallpaperItem({
     setIsLoading(false);
   };
 
-  const commonContainerClasses = `w-full border-2 cursor-pointer hover:opacity-90 ${
-    isSelected ? "ring-2 ring-black border-white" : "border-transparent"
-  }`;
-
-  const placeholder = (
-    <div
-      className="absolute inset-0 bg-gray-200"
-      style={{
-        animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-      }}
-    />
-  );
-
   if (isVideo) {
     return (
       <div
-        ref={containerRef}
-        className={`${commonContainerClasses} aspect-video relative overflow-hidden`}
+        className={`w-full aspect-video border-2 cursor-pointer hover:opacity-90 ${
+          isSelected ? "ring-2 ring-black border-white" : "border-transparent"
+        } relative overflow-hidden`}
         onClick={handleClick}
       >
-        {(isLoading || !isInView) && placeholder}
-        {isInView && (
-          <video
-            ref={videoRef}
-            className="absolute inset-0 w-full h-full object-cover"
-            src={displayUrl}
-            loop
-            muted
-            playsInline
-            onLoadedData={handleVideoLoaded}
-            onCanPlayThrough={handleCanPlayThrough}
-            style={{
-              objectPosition: "center center",
-              opacity: isLoading ? 0 : 1,
-              transition: "opacity 0.5s ease-in-out",
-            }}
-          />
+        {isLoading && (
+          <div className="absolute inset-0 bg-gray-700/30">
+            <div
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-50"
+              style={{
+                backgroundSize: "200% 100%",
+                animation: "shimmer 2.5s infinite ease-in-out",
+              }}
+            />
+          </div>
         )}
+        <video
+          ref={videoRef}
+          className="absolute inset-0 w-full h-full object-cover"
+          src={displayUrl}
+          loop
+          muted
+          playsInline
+          onLoadedData={handleVideoLoaded}
+          onCanPlayThrough={handleCanPlayThrough}
+          style={{
+            objectPosition: "center center",
+            opacity: isLoading ? 0 : 1,
+            transition: "opacity 0.5s ease-in-out",
+          }}
+        />
       </div>
     );
   }
 
   return (
     <div
-      ref={containerRef}
-      className={`${commonContainerClasses} ${
+      className={`w-full ${
         isTile ? "aspect-square" : "aspect-video"
-      } relative overflow-hidden`}
-      style={
-        isInView
-          ? {
-              backgroundImage: `url(${displayUrl})`,
-              backgroundSize: isTile ? "64px 64px" : "cover",
-              backgroundPosition: isTile ? undefined : "center",
-              backgroundRepeat: isTile ? "repeat" : undefined,
-            }
-          : {}
-      }
+      } border-2 cursor-pointer hover:opacity-90 ${
+        isSelected ? "ring-2 ring-black border-white" : "border-transparent"
+      }`}
+      style={{
+        backgroundImage: `url(${displayUrl})`,
+        backgroundSize: isTile ? "64px 64px" : "cover",
+        backgroundPosition: isTile ? undefined : "center",
+        backgroundRepeat: isTile ? "repeat" : undefined,
+      }}
       onClick={handleClick}
-    >
-      {!isInView && placeholder}
-    </div>
+    />
   );
 }
 
