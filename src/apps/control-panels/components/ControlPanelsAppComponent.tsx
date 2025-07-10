@@ -233,7 +233,7 @@ export function ControlPanelsAppComponent({
     setCurrentWallpaper: s.setCurrentWallpaper,
   }));
 
-  // Use auth hook
+  // Use auth hook  
   const {
     username,
     promptSetUsername,
@@ -1414,9 +1414,14 @@ export function ControlPanelsAppComponent({
                   setUiVolume={setUiVolume}
                   setPrevUiVolume={setPrevUiVolume}
                   handleUiMuteToggle={handleUiMuteToggle}
-                  // Removed speechVolume, setSpeechVolume, setPrevSpeechVolume
-                  // Removed chatSynthVolume, setChatSynthVolume, setPrevChatSynthVolume
-                  handleChatSynthMuteToggle={() => {}} // Placeholder for removed handler
+                  speechVolume={1}
+                  setSpeechVolume={(_: number) => {}}
+                  setPrevSpeechVolume={(_: number) => {}}
+                  handleSpeechMuteToggle={() => {}}
+                  chatSynthVolume={1}
+                  setChatSynthVolume={(_: number) => {}}
+                  setPrevChatSynthVolume={(_: number) => {}}
+                  handleChatSynthMuteToggle={() => {}}
                   ipodVolume={ipodVolume}
                   setIpodVolume={setIpodVolume}
                   setPrevIpodVolume={setPrevIpodVolume}
