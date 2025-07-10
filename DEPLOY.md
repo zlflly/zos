@@ -37,7 +37,7 @@ git push -u origin main
 - 推送代码后，GitHub Actions会自动触发构建和部署流程
 - 你可以在仓库的 "Actions" 标签页查看部署进度
 - 部署完成后，你的网站将可以通过以下地址访问：
-  `https://你的用户名.github.io/zos/`
+  `https://zlflly.github.io/zos/`
 
 ## 注意事项
 
