@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import * as shiki from "shiki";
 // HTML preview split functionality removed during simplification
 const loadHtmlPreviewSplit = () => false;
-const saveHtmlPreviewSplit = (value: boolean) => {};
+const saveHtmlPreviewSplit = (_value: boolean) => {};
 import { useSound, Sounds } from "../../hooks/useSound";
 import { useAppStore } from "@/stores/useAppStore";
 
@@ -188,7 +188,7 @@ export default function HtmlPreview({
   const finalProcessedHtmlRef = useRef<string | null>(null);
   const [streamPreviewHtml, setStreamPreviewHtml] = useState<string>(""); // NEW state to hold live HTML preview during streaming
   const lastStreamRenderRef = useRef<number>(0); // To throttle updates
-  const terminalSoundsEnabled = useAppStore(state => state.uiSoundsEnabled);
+  // const terminalSoundsEnabled = useAppStore(state => state.uiSoundsEnabled); // Unused for now
 
   // Ensure base URL has a protocol
   const normalizedBaseUrl = baseUrlForAiContent

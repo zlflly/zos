@@ -17,8 +17,10 @@ const FutureSettingsDialog = ({
   const [selectedYear, setSelectedYear] = useState<string>("2030");
   const saveButtonRef = useRef<HTMLButtonElement>(null);
   
-  // Use the store directly
-  const { timelineSettings, setTimelineSettings, year: currentYear } = useInternetExplorerStore();
+  // Internet Explorer store removed during simplification - using placeholder
+  const timelineSettings = {};
+  const setTimelineSettings = () => {};
+  const currentYear = "2024";
 
   // Update selectedYear when dialog opens
   useEffect(() => {
@@ -41,7 +43,12 @@ const FutureSettingsDialog = ({
 
   // Get default timeline text for a year
   const getDefaultTimelineText = (year: string): string => {
-    return DEFAULT_TIMELINE[year] || "2020s: Current era. AI assistants. Smart devices. Electric vehicles. Renewable energy. Space tourism. Digital transformation. Remote work. Virtual reality. Genetic medicine.";
+    const defaultTimelines: Record<string, string> = {
+      "2030": "2030s: Widespread AI integration. Advanced renewable energy. Space colonies. Autonomous vehicles. Enhanced virtual reality.",
+      "2040": "2040s: Brain-computer interfaces. Fusion energy. Mars settlements. Quantum computing.",
+      "2050": "2050s: Artificial general intelligence. Climate restoration. Interplanetary travel."
+    };
+    return defaultTimelines[year] || "2020s: Current era. AI assistants. Smart devices. Electric vehicles. Renewable energy. Space tourism. Digital transformation. Remote work. Virtual reality. Genetic medicine.";
   };
 
   const handleYearChange = (year: string) => {

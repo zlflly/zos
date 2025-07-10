@@ -236,32 +236,10 @@ export function ControlPanelsAppComponent({
   // Use auth hook  
   const {
     username,
-    promptSetUsername,
-    isUsernameDialogOpen,
-    setIsUsernameDialogOpen,
-    newUsername,
-    setNewUsername,
-    newPassword,
-    setNewPassword,
-    isSettingUsername,
-    usernameError,
-    submitUsernameDialog,
     promptVerifyToken,
-    isVerifyDialogOpen,
-    setVerifyDialogOpen,
-    verifyPasswordInput,
-    setVerifyPasswordInput,
-    verifyUsernameInput,
-    setVerifyUsernameInput,
     hasPassword,
     setPassword,
     logout,
-    confirmLogout,
-    isLogoutConfirmDialogOpen,
-    setIsLogoutConfirmDialogOpen,
-    isVerifyingToken,
-    verifyError,
-    handleVerifyTokenSubmit,
   } = useAuth();
 
   // Password dialog states

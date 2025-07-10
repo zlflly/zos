@@ -926,7 +926,8 @@ export function TextEditAppComponent({
 
   // --- Text-to-Speech (TTS) --- //
   const { speak, stop, isSpeaking } = useTtsQueue();
-  const speechEnabled = useAppStore((state) => state.speechEnabled);
+  // speechEnabled removed - feature always available for now
+  const speechEnabled = true;
 
   // Local UI state for TTS loading (waiting for audio to begin)
   const [isTtsLoading, setIsTtsLoading] = useState(false);

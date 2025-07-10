@@ -21,7 +21,7 @@ export async function decodeSharedUrl(code: string): Promise<{ url: string; year
 /**
  * Extracts the code from a shared URL path
  */
-export function extractCodeFromPath(path: string): string | null {
+export function extractCodeFromPath(_path: string): string | null {
   // This function is currently not used after removing internet-explorer
   // Keeping it as a placeholder in case it's needed for other apps in the future
   return null;

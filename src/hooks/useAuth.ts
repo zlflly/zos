@@ -7,9 +7,9 @@ export function useAuth() {
   const username = "";
   const authToken = "";
   const hasPassword = false;
-  const setAuthToken = () => {};
-  const setUsername = () => {};
-  const createUser = async () => ({ ok: false, error: "Authentication feature removed" });
+  // const setAuthToken = () => {}; // Unused
+  // const setUsername = () => {}; // Unused
+  // const createUser = async () => ({ ok: false, error: "Authentication feature removed" }); // Unused
   const logout = async () => {};
   const storeCheckHasPassword = async () => false;
   const storeSetPassword = async () => ({ ok: false, error: "Authentication feature removed" });
@@ -68,7 +68,7 @@ export function useAuth() {
   }, [username]);
 
   const handleVerifyTokenSubmit = useCallback(
-    async (input: string, isPassword: boolean = false) => {
+    async (_input: string, _isPassword: boolean = false) => {
       toast.error("Authentication feature removed.");
       setIsVerifyingToken(false);
     }, [username, authToken]);

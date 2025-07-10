@@ -343,7 +343,7 @@ export const markdownToHtml = (markdown: string): string => {
 
 
   // Convert task lists
-  html = html.replace(/- \[(x| )\] (.*)/g, (match, checked, text) => {
+  html = html.replace(/- \[(x| )\] (.*)/g, (_match, checked, text) => {
     const isChecked = checked === "x";
     return `<li data-type="taskItem" data-checked="${isChecked}"><label><input type="checkbox" ${
       isChecked ? 'checked="checked"' : ""

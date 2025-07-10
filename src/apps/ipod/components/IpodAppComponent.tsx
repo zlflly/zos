@@ -1778,13 +1778,13 @@ export function IpodAppComponent({
               onToggleVideo={toggleVideo}
               lcdFilterOn={lcdFilterOn}
               ipodVolume={ipodVolume}
-              showStatusCallback={showStatus}
+              showStatus={showStatus}
               showLyrics={showLyrics}
               lyricsAlignment={lyricsAlignment}
               chineseVariant={chineseVariant}
               koreanDisplay={koreanDisplay}
               lyricOffset={lyricOffset ?? 0}
-              adjustLyricOffset={(delta) =>
+              adjustLyricOffset={(delta: number) =>
                 useIpodStore.getState().adjustLyricOffset(currentIndex, delta)
               }
               registerActivity={registerActivity}

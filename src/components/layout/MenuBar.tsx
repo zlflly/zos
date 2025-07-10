@@ -17,7 +17,6 @@ import { useAppStoreShallow } from "@/stores/helpers";
 import { Slider } from "@/components/ui/slider";
 import { Volume1, Volume2, VolumeX, Settings } from "lucide-react";
 import { useSound, Sounds } from "@/hooks/useSound";
-import { useAppStore } from "@/stores/useAppStore";
 import { appRegistry } from "@/config/appRegistry";
 
 const finderHelpItems = [
@@ -499,7 +498,7 @@ function VolumeControl() {
 }
 
 export function MenuBar({ children }: MenuBarProps) {
-  const { apps, bringToForeground } = useAppContext();
+  const { apps } = useAppContext();
   const { getForegroundInstance } = useAppStoreShallow((s) => ({
     getForegroundInstance: s.getForegroundInstance,
   }));

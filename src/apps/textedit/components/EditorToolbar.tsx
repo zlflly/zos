@@ -1,4 +1,3 @@
-import React from "react";
 import { Editor } from "@tiptap/react";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,9 +8,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Bold,
-  Italic,
-  Underline,
   AlignLeft,
   AlignCenter,
   AlignRight,

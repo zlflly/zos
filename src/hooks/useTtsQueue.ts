@@ -40,14 +40,14 @@ export function useTtsQueue(endpoint: string = "/api/speech") {
 
   // Gain node for global speech volume
   const gainNodeRef = useRef<GainNode | null>(null);
-  const speechVolume = useAppStore((s) => s.speechVolume);
+  const speechVolume = 1; // Default speech volume since removed from store
   const masterVolume = useAppStore((s) => s.masterVolume);
   const setIpodVolumeGlobal = useAppStore((s) => s.setIpodVolume);
-  const setChatSynthVolumeGlobal = useAppStore((s) => s.setChatSynthVolume);
+  // const setChatSynthVolumeGlobal = useAppStore((s) => s.setChatSynthVolume); // Removed from store
 
-  // Get TTS settings from app store
-  const ttsModel = useAppStore((s) => s.ttsModel);
-  const ttsVoice = useAppStore((s) => s.ttsVoice);
+  // Get TTS settings - using defaults since removed from store
+  const ttsModel = null; // Default TTS model
+  const ttsVoice = null; // Default TTS voice
 
   // Keep track of iPod and chat synth volumes for duck/restore
   const originalIpodVolumeRef = useRef<number | null>(null);
@@ -307,13 +307,9 @@ export function useTtsQueue(endpoint: string = "/api/speech") {
 
       // Duck chat synth volume
       if (originalChatSynthVolumeRef.current === null) {
-        originalChatSynthVolumeRef.current =
-          useAppStore.getState().chatSynthVolume;
-        const duckedChatSynth = Math.max(
-          0,
-          originalChatSynthVolumeRef.current * 0.6
-        );
-        setChatSynthVolumeGlobal(duckedChatSynth);
+        originalChatSynthVolumeRef.current = 1; // Default volume since chatSynthVolume removed
+        // const duckedChatSynth = Math.max(0, originalChatSynthVolumeRef.current * 0.6);
+        // setChatSynthVolumeGlobal(duckedChatSynth); // Feature removed
       }
     } else {
       // Restore iPod volume if it was ducked
@@ -322,9 +318,9 @@ export function useTtsQueue(endpoint: string = "/api/speech") {
         originalIpodVolumeRef.current = null;
       }
 
-      // Restore chat synth volume if it was ducked
+      // Restore chat synth volume if it was ducked (feature removed)
       if (originalChatSynthVolumeRef.current !== null) {
-        setChatSynthVolumeGlobal(originalChatSynthVolumeRef.current);
+        // setChatSynthVolumeGlobal(originalChatSynthVolumeRef.current); // Feature removed
         originalChatSynthVolumeRef.current = null;
       }
     }
@@ -332,7 +328,7 @@ export function useTtsQueue(endpoint: string = "/api/speech") {
     isSpeaking,
     ipodIsPlaying,
     setIpodVolumeGlobal,
-    setChatSynthVolumeGlobal,
+    // setChatSynthVolumeGlobal, // Removed from dependencies
     isIOS,
   ]);
 
