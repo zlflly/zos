@@ -154,6 +154,16 @@ export function Desktop({
     setSelectedAppId(null);
   };
 
+  const handleDocumentsOpen = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    localStorage.setItem("app_finder_initialPath", "/Documents");
+    const finderApp = apps.find((app) => app.id === "finder");
+    if (finderApp) {
+      toggleApp(finderApp.id);
+    }
+    setSelectedAppId(null);
+  };
+
   // Compute sorted apps based on selected sort type
   const sortedApps = [...apps]
     .filter((app) => app.id !== "finder" && app.id !== "control-panels")
@@ -229,6 +239,18 @@ export function Desktop({
             }}
             onDoubleClick={handleFinderOpen}
             isSelected={selectedAppId === "macintosh-hd"}
+            size="large"
+          />
+          <FileIcon
+            name="Documents"
+            isDirectory={true}
+            icon="/icons/documents.png"
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedAppId("documents");
+            }}
+            onDoubleClick={handleDocumentsOpen}
+            isSelected={selectedAppId === "documents"}
             size="large"
           />
           {sortedApps.map((app) => (
