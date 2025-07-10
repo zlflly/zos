@@ -6,6 +6,8 @@ import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
+  // 为GitHub Pages设置base路径
+  base: process.env.NODE_ENV === 'production' ? '/zos/' : '/',
   server: {
     port: process.env.PORT as unknown as number,
     cors: {

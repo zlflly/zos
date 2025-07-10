@@ -8,7 +8,9 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "clear-chats": "bun scripts/clear-chat-data.js"
+    "clear-chats": "bun scripts/clear-chat-data.js",
+    "deploy:github": "powershell -ExecutionPolicy Bypass -File scripts/deploy-github.ps1",
+    "build:github": "cross-env VITE_DEPLOYMENT_TARGET=github-pages npm run build"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.2.12",
@@ -85,6 +87,7 @@
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react": "^4.5.2",
     "autoprefixer": "^10.4.21",
+    "cross-env": "^7.0.3",
     "eslint": "^9.29.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
